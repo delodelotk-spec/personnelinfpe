@@ -8,12 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script>window.XLSX||document.write('<script src="https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"><\/script>');</script>
-<script>window.XLSX||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ink:#1447A6;--ink2:#1D54B8;--red:#c8102e;--redd:#8f0b21;--gold:#f4b400;--green:#0d7a3f;--paper:#eef1f6;--line:#c9d3de;--blued:#14356f;--mut:#5b6b7d;--tipFontSize:13px;--tipFont:'Public Sans',sans-serif;--tipColor:#fff;--tipBg:#1447A6}
 body{font-family:'Public Sans',system-ui,'Segoe UI',Arial,sans-serif;background:var(--paper);color:var(--ink);font-size:13px}
-body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:repeating-linear-gradient(115deg,rgba(20,71,166,.04) 0 2px,transparent 2px 28px),radial-gradient(900px 400px at 88% -8%,rgba(200,16,46,.10),transparent 60%),radial-gradient(760px 340px at -6% 108%,rgba(13,122,63,.09),transparent 60%)}
 #login{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,#0B2E73 0%,#1447A6 55%,#1D54B8 100%);overflow:auto}
 .lcard{position:relative;width:520px;max-width:94%;background:#fff;border-radius:12px;border-top:6px solid var(--red);box-shadow:0 30px 80px rgba(0,0,0,.55);padding:40px 44px 36px;animation:pop .4s cubic-bezier(.2,.9,.3,1.15)}
 .lflag{height:7px;border-radius:3px;background:linear-gradient(90deg,var(--red) 0 50%,var(--green) 50%);position:relative;margin-bottom:20px}
@@ -27,19 +26,21 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .lcard .fl{font-size:12.5px}.lcard .in{font-size:15px;padding:12px 14px}
 .shake{animation:shk .4s}
 @keyframes shk{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:none}}
 #app{display:none}
-.mast{background:linear-gradient(135deg,#0B2E73 0%,#1447A6 55%,#2160CC 100%);color:#fff;padding:12px 22px;display:flex;gap:14px;align-items:center;box-shadow:0 3px 14px rgba(11,46,115,.35)}
+.mast{background:linear-gradient(135deg,#0B2E73 0%,#1447A6 55%,#2160CC 100%);color:#fff;padding:12px 22px;display:flex;gap:14px;align-items:center;box-shadow:0 3px 14px rgba(11,46,115,.35);flex-wrap:wrap}
 .mlogo{width:54px;height:54px;flex:none;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff,#e8edf3 70%);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid var(--gold)}
 .mlogo img{width:100%;height:100%;object-fit:contain}.mlogo .star{font-size:26px;color:var(--gold)}
 .mtitle h1{font-family:'Bricolage Grotesque';font-size:19px;font-weight:800;letter-spacing:.4px;line-height:1.15}
 .mtitle .motto{color:var(--gold);font-size:11px;font-style:italic;font-weight:600;letter-spacing:.6px;margin-top:2px}
 .mast-right{margin-left:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .mdate{font-size:12px;color:#DCE8FF;font-weight:600}
-.uchip{display:flex;align-items:center;gap:8px}
+.uchip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .savechip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.32);padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
 .savechip .dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
 .savechip.busy .dot{background:var(--gold);animation:pulse .9s infinite}
 .savechip.warn .dot{background:var(--red)}
+.savechip.cloud .dot{background:#7ec8ff}
 @keyframes pulse{50%{opacity:.25}}
 #btnLogout{background:transparent;border:1pt solid rgba(255,255,255,.45);color:#fff;font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit}
 #btnLogout:hover{background:var(--red)}
@@ -91,10 +92,9 @@ section.page.on.fx-x{animation:swX .5s ease}
 .logo-panel .panel-b{display:flex;gap:14px;align-items:center}
 .dlogo{width:104px;height:104px;flex:none;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f6f8fb}
 .dlogo img{max-width:100%;max-height:100%}.dlogo .ph{color:#9fb0c2;font-size:11px;text-align:center;padding:6px}
-/* Histogrammes : barres d'un tiers de centimètre (≈12,6 px) */
-.rbar{display:grid;grid-template-columns:230px 1fr 44px;gap:9px;align-items:center;padding:3px 0;font-size:12px}
+.rbar{display:grid;grid-template-columns:230px 1fr 44px;gap:9px;align-items:center;padding:4px 0;font-size:12px}
 .rbar .rl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.rbar .track{background:#e6ebf1;border-radius:2px;height:12.6px;min-height:12.6px;overflow:hidden;border:1px solid var(--line)}
+.rbar .track{background:#e6ebf1;border-radius:3px;height:12.6px;min-height:12.6px;overflow:hidden;border:1px solid var(--line)}
 .rbar .fill{height:100%;background:linear-gradient(90deg,var(--ink2),#4D82E0);width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
 .rbar.g .fill{background:linear-gradient(90deg,var(--green),#2fa968)}
 .rbar .rn{font-weight:800;text-align:right;color:var(--red)}
@@ -122,6 +122,7 @@ tr.empty td{background:#fbfcfe!important;cursor:default;color:transparent}
 .btn.red{background:var(--red);border-color:var(--redd)}.btn.red:hover{background:#e01537}
 .btn.ghost{background:#fff;color:var(--ink)}
 .btn.gold{background:var(--gold);border-color:#c99400;color:#3a2d00}
+.btn.sky{background:#0b7dc2;border-color:#086094}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .icobtn{border:1pt solid var(--line);background:#fff;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:12px;transition:.15s;font-family:inherit}
 .icobtn:hover{border-color:var(--ink);transform:translateY(-1px)}
@@ -142,7 +143,6 @@ legend{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.0
 .mback.on{display:flex}
 .modal{background:#fff;width:980px;max-width:100%;border-radius:8px;border-top:5px solid var(--red);box-shadow:0 24px 60px rgba(9,34,84,.5);animation:pop .24s cubic-bezier(.2,.9,.3,1.15)}
 .modal.sm{width:660px}.modal.xs{width:480px}
-@keyframes pop{from{opacity:0;transform:scale(.94) translateY(16px)}to{opacity:1;transform:none}}
 .mhead{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);cursor:move;user-select:none}
 .mhead h3{font-family:'Bricolage Grotesque';font-size:17px}
 .drag-grip{margin-left:auto;color:#9fb0c2;font-size:15px;margin-right:8px;cursor:move}
@@ -193,6 +193,18 @@ table.coll{border-collapse:collapse;width:100%;font-size:12px;margin-top:8px}
 table.coll th,table.coll td{border:1pt solid #000;padding:4px 6px;font-size:12px;vertical-align:top}
 table.coll th{background:#eef2f7}
 table.coll input,table.coll select{border:1pt solid var(--blued);font-size:12px;padding:3px 5px;width:100%;border-radius:3px}
+.msg-item{border:1pt solid var(--line);border-radius:6px;padding:10px 14px;margin-bottom:8px;background:#fff;transition:.15s}
+.msg-item:hover{border-color:var(--ink);transform:translateX(3px)}
+.msg-item.unread{border-left:4px solid var(--red);background:#fffafa}
+.msg-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:10.5px;color:var(--mut);margin-top:6px}
+.msg-meta .from{font-weight:700;color:var(--ink)}
+.msg-body{margin-top:6px;font-size:12px;line-height:1.5}
+.msg-actions{display:flex;gap:6px;margin-top:8px}
+.msg-readers{margin-top:6px;font-size:10.5px;color:var(--mut);font-style:italic}
+pre.sql{background:#0d1b2a;color:#c9e4ff;padding:12px;border-radius:6px;font-size:11.5px;overflow:auto;margin:8px 0;white-space:pre-wrap}
+.dir-chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:240px;overflow:auto;border:1pt solid var(--blued);padding:8px;border-radius:4px;background:#f9f9fb;margin-top:4px}
+.dir-chk-grid label{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 4px;cursor:pointer;border-radius:3px}
+.dir-chk-grid label:hover{background:#e8edf3}
 @media(max-width:1150px){.dash-row,.dash-2{grid-template-columns:1fr}.fgrid{grid-template-columns:repeat(2,1fr)}.rbar{grid-template-columns:160px 1fr 40px}}
 @media(max-width:880px){.shell{flex-direction:column}nav.side{width:100%;height:auto;flex-direction:row;flex-wrap:wrap;position:static}.nsep,.side-foot{display:none}.rbar{grid-template-columns:120px 1fr 36px}}
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -209,25 +221,25 @@ table.coll input,table.coll select{border:1pt solid var(--blued);font-size:12px;
 <h1>INSTITUT NATIONAL DE FORMATION<br>DES PERSONNELS DE L'EDUCATION</h1>
 <div class="lmotto">La Patrie ou la Mort, nous Vaincrons</div>
 <div class="lerr" id="lErr"></div>
-<div style="margin-bottom:13px"><label class="fl">Nom d'utilisateur</label><input class="in" id="lUser" autocomplete="username" data-tip="Identifiant du compte (non affiché par défaut)"></div>
-<div style="margin-bottom:14px"><label class="fl">Mot de passe</label><input class="in" id="lPass" type="password" autocomplete="current-password" data-tip="Mot de passe du compte (non affiché par défaut)"></div>
-<button class="btn red" id="btnLogin" data-tip="Ouvrir la session ; vérifie puis crée « Agents.xlsx » si besoin" style="width:100%;justify-content:center;padding:13px;font-size:15px">🔐 Se connecter</button>
+<div style="margin-bottom:13px"><label class="fl">Nom d'utilisateur</label><input class="in" id="lUser" autocomplete="username" data-tip="Identifiant du compte"></div>
+<div style="margin-bottom:14px"><label class="fl">Mot de passe</label><input class="in" id="lPass" type="password" autocomplete="current-password" data-tip="Mot de passe du compte"></div>
+<button class="btn red" id="btnLogin" data-tip="Ouvrir la session ; transfère automatiquement la configuration Cloud officielle" style="width:100%;justify-content:center;padding:13px;font-size:15px">🔐 Se connecter</button>
 <div class="lhint">Plateforme de la Direction des Ressources Humaines — Burkina Faso</div>
 </div>
 </div>
 <div id="app">
 <header class="mast">
-<button id="btnSide" class="btn-side" data-tip="Réduire / agrandir le menu latéral (icônes seules)">☰</button>
+<button id="btnSide" class="btn-side" data-tip="Réduire / agrandir le menu latéral">☰</button>
 <div class="mlogo" id="mhLogo"><span class="star">★</span></div>
 <div class="mtitle">
 <h1>INSTITUT NATIONAL DE FORMATION DES PERSONNELS DE L'EDUCATION</h1>
 <div class="motto">La Patrie ou la Mort, nous Vaincrons — Système de gestion du personnel (DRH)</div>
 </div>
 <div class="mast-right">
-<div class="mdate" id="mastDate" data-tip="Date du jour au format long (ville d'impression)"></div>
+<div class="mdate" id="mastDate" data-tip="Date du jour au format long"></div>
 <div class="uchip">
-<div class="savechip" id="saveChip" data-tip="État de la sauvegarde automatique (IndexedDB / localStorage / mémoire)"><span class="dot"></span><span id="saveTxt">Prêt</span></div>
-<span class="savechip" id="mastUser" data-tip="Compte connecté et type d'utilisateur">👤</span>
+<div class="savechip" id="saveChip" data-tip="État de la sauvegarde"><span class="dot"></span><span id="saveTxt">Prêt</span></div>
+<span class="savechip" id="mastUser" data-tip="Compte connecté">👤</span>
 <button id="btnLogout" data-tip="Fermer la session (confirmation demandée)">🚪 Déconnexion</button>
 </div>
 </div>
@@ -236,35 +248,39 @@ table.coll input,table.coll select{border:1pt solid var(--blued);font-size:12px;
 <div class="shell">
 <nav class="side">
 <div class="nsep">Pilotage</div>
-<div class="nitem on" data-tab="dash" data-tip="Tableau de bord : logo, effectifs, directions, actions, histogrammes 1/3 cm"><span class="ni-ico">📊</span><span class="ni-lbl">Tableau de bord</span></div>
+<div class="nitem on" data-tab="dash" data-tip="Tableau de bord : logo, effectifs, histogrammes"><span class="ni-ico">📊</span><span class="ni-lbl">Tableau de bord</span></div>
 <div class="nsep">Personnel</div>
-<div class="nitem" data-tab="agents" data-tip="Liste complète A→W : édition directe, recherches, colonnes au choix, retraite en rouge"><span class="ni-ico">👥</span><span class="ni-lbl">Liste des agents</span></div>
-<div class="nitem" data-tab="actlist" data-tip="Colonnes essentielles + bouton Nouvelle action (26 types d'actes)"><span class="ni-ico">🧭</span><span class="ni-lbl">Agents pour les actions</span></div>
-<div class="nitem" data-tab="quittes" data-tip="Agents sortis : retraite, fin de détachement, décès, suppression ; certificats de cessation rapides"><span class="ni-ico">🚪</span><span class="ni-lbl">Agents ayant quitté</span></div>
-<div class="nitem" data-tab="dossier" data-tip="Dossiers individuels [matricule] : ouverture, fichiers, sous-dossier Actions"><span class="ni-ico">🗂️</span><span class="ni-lbl">Dossier individuel</span></div>
+<div class="nitem" data-tab="agents" data-tip="Liste complète A→W : édition directe, colonnes au choix"><span class="ni-ico">👥</span><span class="ni-lbl">Liste des agents</span></div>
+<div class="nitem" data-tab="actlist" data-tip="Bouton Nouvelle action (26 types d'actes)"><span class="ni-ico">🧭</span><span class="ni-lbl">Agents pour les actions</span></div>
+<div class="nitem" data-tab="quittes" data-tip="Agents sortis : certificats de cessation rapides"><span class="ni-ico">🚪</span><span class="ni-lbl">Agents ayant quitté</span></div>
+<div class="nitem" data-tab="dossier" data-tip="Dossiers individuels [matricule]"><span class="ni-ico">🗂️</span><span class="ni-lbl">Dossier individuel</span></div>
 <div class="nsep">Actes</div>
-<div class="nitem" data-tab="actions" data-tip="Actions par type : modifier, imprimer (Word), supprimer, exporter Agents.xlsx"><span class="ni-ico">📁</span><span class="ni-lbl">Actions effectuées</span></div>
-<div class="nitem" data-tab="stats" data-tip="Statistiques croisées agent × type d'acte ; rapports Word / PDF"><span class="ni-ico">📈</span><span class="ni-lbl">Statistiques</span></div>
+<div class="nitem" data-tab="actions" data-tip="Actions par type : modifier, imprimer, supprimer"><span class="ni-ico">📁</span><span class="ni-lbl">Actions effectuées</span></div>
+<div class="nitem" data-tab="stats" data-tip="Statistiques croisées agent × type d'acte"><span class="ni-ico">📈</span><span class="ni-lbl">Statistiques</span></div>
+<div class="nsep">Communication</div>
+<div class="nitem" data-tab="messages" data-tip="Messages et fichiers entre utilisateurs"><span class="ni-ico">💬</span><span class="ni-lbl">Messages & Fichiers</span></div>
 <div class="nsep">Système</div>
-<div class="nitem" data-tab="param" data-tip="Utilisateurs, signataires, logo & infobulles, timbre, chemins, données"><span class="ni-ico">⚙️</span><span class="ni-lbl">Paramètres</span></div>
-<div class="nitem" data-tab="aide" data-tip="Guide d'utilisation détaillé, repliable et recherchable"><span class="ni-ico">📖</span><span class="ni-lbl">Guide d'utilisation</span></div>
-<div class="side-foot">💾 Stockage : IDB + LS + mémoire<br><span id="storInfo"></span></div>
+<div class="nitem" data-tab="cloud" data-tip="☁️ Synchronisation Cloud Supabase"><span class="ni-ico">☁️</span><span class="ni-lbl">Cloud / Netlify</span></div>
+<div class="nitem" data-tab="param" data-tip="Utilisateurs, signataires, logo, timbre, données"><span class="ni-ico">⚙️</span><span class="ni-lbl">Paramètres</span></div>
+<div class="nitem" data-tab="aide" data-tip="Guide d'utilisation détaillé"><span class="ni-ico">📖</span><span class="ni-lbl">Guide d'utilisation</span></div>
+<div class="side-foot">💾 Stockage : IDB + Cloud<br><span id="storInfo"></span></div>
 </nav>
 <main>
+
 <section class="page on" id="pg-dash">
 <div class="ptitle">Tableau de bord</div>
-<div class="psub">Logo, effectifs, directions, actions effectuées, agents sortis — histogrammes croissants à barres d'un tiers de centimètre.</div>
+<div class="psub">Logo, effectifs, directions, actions effectuées, agents sortis — histogrammes croissants.</div>
 <div class="kgrid">
-<div class="kcard" data-tip="Agents actifs (hors sortis)"><div class="knum" id="kTotal">0</div><div class="klab">Nombre d'agents</div></div>
-<div class="kcard ky" data-tip="Directions / régions représentées dans la liste"><div class="knum" id="kReg">0</div><div class="klab">Directions</div></div>
-<div class="kcard kb" data-tip="Total des actes enregistrés (tous types)"><div class="knum" id="kMv">0</div><div class="klab">Actions effectuées</div></div>
-<div class="kcard" data-tip="Agents ayant quitté la structure (motifs divers)"><div class="knum" id="kQuit">0</div><div class="klab">Agents ayant quitté</div></div>
+<div class="kcard" data-tip="Agents actifs"><div class="knum" id="kTotal">0</div><div class="klab">Nombre d'agents</div></div>
+<div class="kcard ky" data-tip="Directions représentées"><div class="knum" id="kReg">0</div><div class="klab">Directions</div></div>
+<div class="kcard kb" data-tip="Total des actes enregistrés"><div class="knum" id="kMv">0</div><div class="klab">Actions effectuées</div></div>
+<div class="kcard" data-tip="Agents ayant quitté la structure"><div class="knum" id="kQuit">0</div><div class="klab">Agents ayant quitté</div></div>
 </div>
 <div class="dash-row">
 <div class="panel logo-panel">
 <div class="panel-h">Institution</div>
 <div class="panel-b">
-<div class="dlogo" id="dLogo" data-tip="Logo JPG chargé dans Paramètres → Logo & Infobulles"><span class="ph">Aucun logo<br>(Paramètres)</span></div>
+<div class="dlogo" id="dLogo" data-tip="Logo JPG chargé dans Paramètres"><span class="ph">Aucun logo<br>(Paramètres)</span></div>
 <div>
 <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px">INFPE</div>
 <div style="font-size:11.5px;color:var(--mut);line-height:1.5">Institut National de Formation des Personnels de l'Education<br><span id="dashVille">Ouagadougou</span> — Burkina Faso</div>
@@ -288,271 +304,354 @@ table.coll input,table.coll select{border:1pt solid var(--blued);font-size:12px;
 </div>
 </div>
 </section>
+
+<section class="page" id="pg-cloud">
+<div class="ptitle">☁️ Synchronisation Cloud (Netlify + Supabase)</div>
+<div class="psub">La base Supabase centralise les données pour tous les ordinateurs connectés.</div>
+<div class="dcard" style="max-width:940px">
+<h4>🔗 Configuration Supabase officielle</h4>
+<p>L'URL et la clé INFPE sont pré-affichées. Cliquez sur <b>🔐⚡ Transférer + Enregistrer</b> (mot de passe requis) pour forcer la configuration officielle, puis <b>🔄 Synchroniser maintenant</b>.</p>
+<div style="display:grid;gap:10px;margin-top:12px">
+<div><label class="fl">URL du projet Supabase</label><input class="in" id="cloudUrl" value="https://dlpebbpvxpdmeknmfobx.supabase.co" data-tip="Adresse de votre projet Supabase"></div>
+<div><label class="fl">Clé publique (Anon Key)</label><input class="in" id="cloudKey" value="sb_publishable_4Xw0TQeuEMxhwg9msSa4Iw_e3js3yc7" data-tip="Clé publique publishable"></div>
+</div>
+<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn red" id="cloudTransfer" data-tip="Transférer la configuration officielle INFPE (protégé par mot de passe)">🔐⚡ Transférer + Enregistrer</button>
+<button class="btn sky" id="cloudSync" data-tip="Envoyer puis récupérer les données du Cloud">🔄 Synchroniser maintenant</button>
+</div>
+<div class="tinfo" id="cloudStatus" style="margin-top:10px"></div>
+</div>
+<div class="dcard" style="max-width:940px">
+<h4>📘 Script SQL — à exécuter UNE SEULE FOIS dans Supabase (SQL Editor)</h4>
+<pre class="sql">CREATE TABLE IF NOT EXISTS infpe_data (
+  site TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE infpe_data ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all operations" ON infpe_data FOR ALL USING (true) WITH CHECK (true);
+INSERT INTO infpe_data (site, data) 
+VALUES ('INFPE', '{"agents":[],"mouvements":[],"messages":[],"settings":{},"columns":[]}')
+ON CONFLICT (site) DO NOTHING;</pre>
+<p style="font-size:11px;color:var(--mut);margin-top:6px">Une fois ce script exécuté, toutes les modifications faites sur n'importe quel ordinateur sont automatiquement propagées aux autres postes via le Cloud.</p>
+</div>
+</section>
+
+<section class="page" id="pg-messages">
+<div class="ptitle">💬 Messages et fichiers</div>
+<div class="psub">Plateforme de communication entre utilisateurs. Messages communs ou individuels. Fichiers de tout type. Suivi de lecture par utilisateur.</div>
+<div class="tbar">
+<button class="btn red" id="msgNew">✉️ Nouveau message</button>
+<button class="btn gold" id="msgUpload">📎 Envoyer un fichier</button>
+<input type="file" id="msgFileInput" style="display:none">
+<label style="font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px"><input type="checkbox" id="msgOnlyUnread"> Non lus uniquement</label>
+<span class="sp"></span><span class="tinfo" id="msgInfo"></span>
+</div>
+<div id="msgList" style="max-height:calc(100vh - 280px);overflow:auto"></div>
+</section>
+
 <section class="page" id="pg-param">
 <div class="ptitle">Paramètres</div>
 <div class="psub">Utilisateurs, signataires, logo & infobulles, timbre, chemin d'accès, données & stockage.</div>
 <div class="chips">
-<button class="chip on" data-ptab="users" data-tip="Comptes d'accès : choix parmi les agents de la structure">👤 Utilisateurs</button>
-<button class="chip" data-ptab="sig" data-tip="Signataires des actes : modification sans rappel de la liste générale">✒️ Signataires</button>
-<button class="chip" data-ptab="logo" data-tip="Logo JPG, ville d'impression, taille/police/couleurs des info-bulles">🖼️ Logo & Infobulles</button>
-<button class="chip" data-ptab="timbre" data-tip="Composantes de l'en-tête Word (institut, directions, numéro, ville)">🏛️ Timbre</button>
-<button class="chip" data-ptab="path" data-tip="Dossier racine des sous-dossiers matricules (création automatique)">📁 Chemin d'accès</button>
-<button class="chip" data-ptab="data" data-tip="Imports/exports Excel, postes occupés, Agents.xlsx, réalimentation, JSON, purge">🗄️ Données</button>
+<button class="chip on" data-ptab="users" data-tip="Comptes d'accès">👤 Utilisateurs</button>
+<button class="chip" data-ptab="sig" data-tip="Signataires des actes">✒️ Signataires</button>
+<button class="chip" data-ptab="logo" data-tip="Logo JPG, ville, infobulles">🖼️ Logo & Infobulles</button>
+<button class="chip" data-ptab="timbre" data-tip="Composantes du timbre">🏛️ Timbre</button>
+<button class="chip" data-ptab="path" data-tip="Dossier racine des sous-dossiers matricules">📁 Chemin d'accès</button>
+<button class="chip" data-ptab="data" data-tip="Imports/exports Excel, postes, Agents.xlsx, purge">🗄️ Données</button>
 </div>
 <div id="pt-users">
-<div class="tbar"><span class="tinfo">Pour être utilisateur, il faut d'abord être agent de la structure.</span><span class="sp"></span><button class="btn red" id="addUser" data-tip="Créer un compte (agent, identifiants, type Administrateur/Directeur/Chef de service/Agent)">➕ Ajouter un utilisateur</button></div>
-<div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th>N°</th><th>Nom &amp; Prénom</th><th>Nom d'utilisateur</th><th>Mot de passe</th><th>Type</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table></div></div>
+<div class="tbar"><span class="tinfo">Pour être utilisateur, il faut d'abord être agent de la structure.</span><span class="sp"></span><button class="btn red" id="addUser" data-tip="Créer un compte">➕ Ajouter un utilisateur</button></div>
+<div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th>N°</th><th>Nom &amp; Prénom</th><th>Nom d'utilisateur</th><th>Mot de passe</th><th>Type</th><th>Directions visibles</th><th>Actions</th></tr></thead><tbody id="userRows"></tbody></table></div></div>
 </div>
 <div id="pt-sig" style="display:none">
-<div class="tbar"><span class="tinfo">Pour être signataire, il faut d'abord être agent de la structure. La modification n'utilise que le nom déjà sélectionné comme signataire.</span><span class="sp"></span><button class="btn red" id="addSig" data-tip="Créer un signataire (type : DG, SG, DR, Directeur technique, Chef de service)">➕ Ajouter un signataire</button></div>
+<div class="tbar"><span class="tinfo">Pour être signataire, il faut d'abord être agent de la structure.</span><span class="sp"></span><button class="btn red" id="addSig" data-tip="Créer un signataire">➕ Ajouter un signataire</button></div>
 <div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th>N°</th><th>Nom &amp; Prénom</th><th>Distinction</th><th>Type de signature</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="sigRows"></tbody></table></div></div>
 </div>
 <div id="pt-logo" style="display:none">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:940px">
 <div class="panel"><div class="panel-h">Logo officiel (JPG)</div><div class="panel-b">
-<div class="dlogo" id="logoPrev" data-tip="Aperçu du logo utilisé au tableau de bord et dans les Word" style="width:150px;height:150px;margin-bottom:12px"><span class="ph">Aperçu</span></div>
-<p style="font-size:11.5px;color:var(--mut);margin-bottom:10px">Affiché au tableau de bord et dans l'en-tête des Word.</p>
+<div class="dlogo" id="logoPrev" style="width:150px;height:150px;margin-bottom:12px"><span class="ph">Aperçu</span></div>
 <input type="file" id="logoFile" accept="image/jpeg,image/jpg,image/png" style="display:none">
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" data-tip="Choisir un fichier image JPG/PNG (≤ 4 Mo) comme logo" onclick="document.getElementById('logoFile').click()">📤 Charger le logo</button><button class="btn ghost" id="logoDel" data-tip="Retirer le logo actuel (en-têtes sans image)">🗑 Retirer</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn red" onclick="document.getElementById('logoFile').click()">📤 Charger le logo</button><button class="btn ghost" id="logoDel">🗑 Retirer</button></div>
 </div></div>
 <div class="panel"><div class="panel-h">Ville & Infobulles</div><div class="panel-b">
-<label class="fl">Ville d'impression</label><input class="in" id="villeInput" data-tip="Ville des mentions « Fait à …, le … » et de l'en-tête Word" placeholder="Ex. : Ouagadougou">
+<label class="fl">Ville d'impression</label><input class="in" id="villeInput" placeholder="Ex. : Ouagadougou">
 <label class="fl" style="margin-top:8px">Taille infobulles</label>
-<select class="in" id="tipSize" data-tip="Taille de police des info-bulles (11 à 16 px)"><option value="11px">11 px</option><option value="12px">12 px</option><option value="13px" selected>13 px</option><option value="14px">14 px</option><option value="15px">15 px</option><option value="16px">16 px</option></select>
+<select class="in" id="tipSize"><option value="11px">11 px</option><option value="12px">12 px</option><option value="13px" selected>13 px</option><option value="14px">14 px</option></select>
 <label class="fl" style="margin-top:8px">Police infobulles</label>
-<select class="in" id="tipFont" data-tip="Police de caractères des info-bulles"><option value="'Public Sans',sans-serif" selected>Public Sans</option><option value="Arial,sans-serif">Arial</option><option value="'Segoe UI',sans-serif">Segoe UI</option><option value="'Bricolage Grotesque',sans-serif">Bricolage Grotesque</option></select>
+<select class="in" id="tipFont"><option value="'Public Sans',sans-serif" selected>Public Sans</option><option value="Arial,sans-serif">Arial</option></select>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-<div><label class="fl">Couleur police</label><input type="color" id="tipColor" data-tip="Couleur du texte des info-bulles" value="#ffffff" style="width:100%;height:34px;border:1pt solid var(--blued)"></div>
-<div><label class="fl">Couleur fond</label><input type="color" id="tipBg" data-tip="Couleur de fond des info-bulles" value="#1447A6" style="width:100%;height:34px;border:1pt solid var(--blued)"></div>
+<div><label class="fl">Couleur police</label><input type="color" id="tipColor" value="#ffffff" style="width:100%;height:34px;border:1pt solid var(--blued)"></div>
+<div><label class="fl">Couleur fond</label><input type="color" id="tipBg" value="#1447A6" style="width:100%;height:34px;border:1pt solid var(--blued)"></div>
 </div>
 </div></div>
 </div>
 </div>
 <div id="pt-timbre" style="display:none">
 <div class="panel" style="max-width:940px"><div class="panel-h">Timbre (en-tête Word)</div><div class="panel-b">
-<div style="margin-bottom:12px"><label class="fl">Institut</label><textarea class="in" id="tInstitut" data-tip="Dénomination officielle imprimée en en-tête (plusieurs lignes possibles)" rows="2"></textarea></div>
+<div style="margin-bottom:12px"><label class="fl">Institut</label><textarea class="in" id="tInstitut" rows="2"></textarea></div>
 <div class="fgrid" style="grid-template-columns:1fr 1fr">
-<div><label class="fl">Direction générale</label><input class="in" id="tDg" data-tip="Ligne « DIRECTION GENERALE » de l'en-tête"></div>
-<div><label class="fl">Secrétariat général</label><input class="in" id="tSg" data-tip="Ligne « SECRETARIAT GENERAL » de l'en-tête"></div>
-<div><label class="fl">Direction</label><input class="in" id="tDirection" data-tip="Ligne direction (ex. : Direction des Ressources Humaines)"></div>
-<div><label class="fl">Service</label><input class="in" id="tService" data-tip="Ligne service éventuelle sous la direction"></div>
-<div><label class="fl">Numéro</label><input class="in" id="tNumero" data-tip="Préfixe de numéro officiel (ex. : 2026____/INFPE/DG/SG/DRH)"></div>
-<div><label class="fl">Ville d'impression</label><input class="in" id="tVille" data-tip="Ville de l'en-tête « Ville, le … »"></div>
+<div><label class="fl">Direction générale</label><input class="in" id="tDg"></div>
+<div><label class="fl">Secrétariat général</label><input class="in" id="tSg"></div>
+<div><label class="fl">Direction</label><input class="in" id="tDirection"></div>
+<div><label class="fl">Service</label><input class="in" id="tService"></div>
+<div><label class="fl">Numéro</label><input class="in" id="tNumero"></div>
+<div><label class="fl">Ville d'impression</label><input class="in" id="tVille"></div>
 </div>
-<div style="margin-top:14px"><button class="btn red" id="tSave" data-tip="Enregistrer durablement les composantes du timbre">💾 Enregistrer le timbre</button><span class="tinfo" id="tInfo"></span></div>
+<div style="margin-top:14px"><button class="btn red" id="tSave">💾 Enregistrer le timbre</button><span class="tinfo" id="tInfo"></span></div>
 </div></div>
 </div>
 <div id="pt-path" style="display:none">
 <div class="dcard" style="max-width:940px"><h4>📁 Chemin d'accès global (Dossier racine)</h4>
-<p>Dès sélection, le système <b>génère automatiquement</b> les sous-dossiers au nom des matricules. Les Word sont classés dans <b>[matricule]/Actions/</b>. Chrome ou Edge requis.</p>
-<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn gold" id="btnBaseDir" data-tip="Indexer le dossier racine ; crée aussitôt tous les sous-dossiers matricules">📂 Choisir le dossier racine…</button><span class="tinfo" id="baseDirInfo"></span></div>
+<p>Dès sélection, le système <b>génère automatiquement</b> les sous-dossiers au nom des matricules. Les Word sont classés dans <b>[matricule]/Actions/</b>.</p>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn gold" id="btnBaseDir">📂 Choisir le dossier racine…</button><span class="tinfo" id="baseDirInfo"></span></div>
 </div>
 </div>
 <div id="pt-data" style="display:none">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:940px">
-<div class="dcard"><h4>📥 Importer le fichier Excel des agents (A→W)</h4><p>Importe toutes les données par colonne et par ligne, fusion par matricule (en-têtes répétées ignorées). Enregistrement permanent vérifié.</p>
+<div class="dcard"><h4>📥 Importer le fichier Excel des agents (A→W)</h4><p>Importe toutes les données par colonne et par ligne.</p>
 <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none">
-<button class="btn gold" id="dImport" data-tip="Lire un classeur Excel source (colonnes NUMERO…TELEPHONNE) et fusionner par matricule">📥 Choisir le fichier Excel…</button>
+<button class="btn gold" id="dImport">📥 Choisir le fichier Excel…</button>
 <div class="tinfo" id="lastImport" style="margin-top:8px"></div></div>
-<div class="dcard"><h4>📥 Importer les postes occupés (Excel)</h4><p>La <b>colonne A</b> contient les postes occupés : ils alimentent les <b>combobox</b> de postes des modaux.</p>
+<div class="dcard"><h4>📥 Importer les postes occupés (Excel)</h4><p>La <b>colonne A</b> contient les postes occupés.</p>
 <input type="file" id="importPostesFile" accept=".xlsx,.xls,.csv" style="display:none">
-<button class="btn gold" id="dImportPostes" data-tip="Charger la liste des postes (colonne A) pour les combobox des modaux">📥 Importer les postes occupés…</button>
+<button class="btn gold" id="dImportPostes">📥 Importer les postes occupés…</button>
 <div class="tinfo" id="postesInfo" style="margin-top:8px"></div></div>
-<div class="dcard"><h4>➕ Ajouter un agent</h4><p>Numéro = dernier numéro de la liste + 1.</p><button class="btn red" id="dAddAgent" data-tip="Ouvrir la fiche vierge ; numéro auto = dernier + 1 ; NOM majuscules, Prénom capitalisé">➕ Ajouter un agent</button></div>
-<div class="dcard"><h4>📤 Exporter Excel</h4><p>.xlsx de la liste des agents actifs (en-têtes gras fond bleu, bordures).</p><button class="btn" id="dExportX" data-tip="Télécharger la liste des agents actifs en .xlsx mis en forme">📤 Exporter Excel</button></div>
-<div class="dcard"><h4>🧬 Sauvegarde JSON</h4><p>Copie complète (agents, actions, postes, paramètres).</p><button class="btn" id="dExportJ" data-tip="Télécharger une sauvegarde complète restaurable (JSON)">🧬 Sauvegarde JSON</button></div>
-<div class="dcard"><h4>📄 Classeur « Agents.xlsx »</h4><p>Feuilles : <b>un onglet par type d'action (26)</b> + <b>« Agents »</b> + <b>« Sortis »</b> — en-têtes <b>gras fond bleu</b>, <b>bordures noires</b> partout. Vérifié/créé à l'ouverture dans le dossier indexé (ex. C:\GESTION_DU_PERSONNEL\GESTION).</p>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="dExportDir" data-tip="Indexer le dossier d'export (ex. C:\GESTION_DU_PERSONNEL\GESTION) pour écriture automatique">📂 Dossier d'export…</button><button class="btn gold" id="dExportWb" data-tip="Générer/synchroniser maintenant le classeur Agents.xlsx (26 types + Agents + Sortis)">📤 Générer / synchroniser</button></div>
+<div class="dcard"><h4>➕ Ajouter un agent</h4><p>Numéro = dernier numéro de la liste + 1.</p><button class="btn red" id="dAddAgent">➕ Ajouter un agent</button></div>
+<div class="dcard"><h4>📤 Exporter Excel</h4><p>.xlsx de la liste des agents actifs.</p><button class="btn" id="dExportX">📤 Exporter Excel</button></div>
+<div class="dcard"><h4>🧬 Sauvegarde JSON</h4><p>Copie complète.</p><button class="btn" id="dExportJ">🧬 Sauvegarde JSON</button></div>
+<div class="dcard"><h4>📄 Classeur « Agents.xlsx »</h4><p>Feuilles : <b>un onglet par type d'action (26)</b> + <b>« Agents »</b> + <b>« Sortis »</b>.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="dExportDir">📂 Dossier d'export…</button><button class="btn gold" id="dExportWb">📤 Générer / synchroniser</button></div>
 <div class="tinfo" id="exportDirInfo" style="margin-top:8px"></div></div>
-<div class="dcard"><h4>🔄 Réalimenter le logiciel depuis « Agents.xlsx »</h4><p>Relit le classeur (feuilles types d'actions + Agents + Sortis) et <b>restaure agents, sortis, actions, revenus, retenues, postes et disciplines</b> — depuis le dossier indexé ou un fichier choisi.</p>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" id="dRefeedDir" data-tip="Relire Agents.xlsx du dossier indexé et remplacer les données actuelles">🔁 Relire depuis le dossier indexé</button><button class="btn" id="dRefeedFile" data-tip="Choisir un fichier Agents.xlsx pour réalimenter le logiciel">📂 Choisir Agents.xlsx…</button></div>
+<div class="dcard"><h4>🔄 Réalimenter le logiciel depuis « Agents.xlsx »</h4>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" id="dRefeedDir">🔁 Relire depuis le dossier indexé</button><button class="btn" id="dRefeedFile">📂 Choisir Agents.xlsx…</button></div>
 <input type="file" id="importWbFile" accept=".xlsx,.xls" style="display:none"></div>
-<div class="dcard danger" style="grid-column:1/-1"><h4>🧹 Supprimer toute la liste et toutes les actions</h4><p>Réservé à l'administrateur. Mot de passe + confirmation exigés.</p><button class="btn red" id="dClear" data-tip="Effacer agents + actions (administrateur ; mot de passe + double confirmation)">🧹 Tout supprimer</button></div>
+<div class="dcard danger" style="grid-column:1/-1"><h4>🧹 Supprimer toute la liste et toutes les actions</h4><p>Réservé à l'administrateur.</p><button class="btn red" id="dClear">🧹 Tout supprimer</button></div>
 </div>
-<div class="panel" style="max-width:940px"><div class="panel-h">Santé du stockage navigateur</div><div class="panel-b" id="dInfo" style="font-size:12px;line-height:1.7"></div></div>
+<div class="panel" style="max-width:940px"><div class="panel-h">Santé du stockage</div><div class="panel-b" id="dInfo" style="font-size:12px;line-height:1.7"></div></div>
 </div>
 </section>
+
 <section class="page" id="pg-agents">
 <div class="ptitle">Liste des agents</div>
-<div class="psub">Toutes les colonnes du fichier source. Édition directe (auto-save à la sortie). 📋 Colonnes. Tri alphabétique.</div>
+<div class="psub">Toutes les colonnes du fichier source. Édition directe (auto-save à la sortie). 📋 Colonnes.</div>
 <div class="tbar">
-<input class="in" id="fSearch" data-tip="Recherche générale sur toutes les colonnes" placeholder="🔍 Recherche générale…" style="width:190px">
-<input class="in" id="fNom" data-tip="Filtrer par NOM (insensible aux accents)" placeholder="🔍 Nom…" style="width:130px">
-<input class="in" id="fPrenom" data-tip="Filtrer par PRÉNOMS" placeholder="🔍 Prénoms…" style="width:130px">
-<select class="in" id="fDir" data-tip="Filtrer par direction / région" style="width:180px"><option value="">🏛 Toutes directions</option></select>
-<select class="in" id="fEmptyCol" data-tip="Colonne à tester pour le filtre « cellules vides »" style="width:170px"></select>
-<label style="font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px" data-tip="N'afficher que les agents dont la colonne choisie est vide"><input type="checkbox" id="fEmptyChk"> Cellules vides</label>
-<button class="btn ghost" id="fReset" data-tip="Effacer tous les critères de recherche">↺</button>
-<button class="btn" id="btnCols" data-tip="Choisir les colonnes affichées dans la liste des agents">📋 Colonnes</button>
+<input class="in" id="fSearch" placeholder="🔍 Recherche générale…" style="width:190px">
+<input class="in" id="fNom" placeholder="🔍 Nom…" style="width:130px">
+<input class="in" id="fPrenom" placeholder="🔍 Prénoms…" style="width:130px">
+<select class="in" id="fDir" style="width:180px"><option value="">🏛 Toutes directions</option></select>
+<select class="in" id="fEmptyCol" style="width:170px"></select>
+<label style="font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:5px"><input type="checkbox" id="fEmptyChk"> Cellules vides</label>
+<button class="btn ghost" id="fReset">↺</button>
+<button class="btn" id="btnCols">📋 Colonnes</button>
 <span class="sp"></span><span class="tinfo" id="agInfo"></span>
 </div>
 <div class="tw"><div class="tscroll"><table class="tbl"><thead id="agHead"></thead><tbody id="agBody"></tbody></table></div></div>
 <div class="pgbar" id="agPager"></div>
 </section>
+
 <section class="page" id="pg-actlist">
 <div class="ptitle">Liste des agents pour les actions</div>
-<div class="psub">Colonnes essentielles + boutons ✏️ Éditer et 🔁 Nouvelle action (26 types). Tri alphabétique.</div>
+<div class="psub">Colonnes essentielles + boutons ✏️ Éditer et 🔁 Nouvelle action (26 types).</div>
 <div class="tbar">
-<input class="in" id="alSearch" data-tip="Rechercher par nom ou matricule" placeholder="🔍 Rechercher…" style="width:230px">
-<button class="btn" id="alCols" data-tip="Choisir les colonnes affichées dans cette liste">📋 Colonnes</button>
+<input class="in" id="alSearch" placeholder="🔍 Rechercher…" style="width:230px">
+<button class="btn" id="alCols">📋 Colonnes</button>
 <span class="sp"></span><span class="tinfo" id="alInfo"></span>
 </div>
 <div class="tw"><div class="tscroll"><table class="tbl"><thead id="alHead"></thead><tbody id="alBody"></tbody></table></div></div>
 <div class="pgbar" id="alPager"></div>
 </section>
+
 <section class="page" id="pg-quittes">
 <div class="ptitle">Liste des agents ayant quitté la structure</div>
-<div class="psub">Fin de détachement, départ à la retraite, décès ou suppression. Certificats de cessation rapides selon le motif. Tri alphabétique.</div>
-<div class="tbar"><button class="btn" id="qCols" data-tip="Choisir les colonnes affichées dans la liste des sortis">📋 Colonnes</button><span class="sp"></span><span class="tinfo" id="qCount"></span></div>
+<div class="psub">Fin de détachement, départ à la retraite, décès ou suppression.</div>
+<div class="tbar"><button class="btn" id="qCols">📋 Colonnes</button><span class="sp"></span><span class="tinfo" id="qCount"></span></div>
 <div class="tw"><div class="tscroll"><table class="tbl"><thead id="qHead"></thead><tbody id="qBody"></tbody></table></div></div>
 </section>
+
 <section class="page" id="pg-dossier">
 <div class="ptitle">Dossier individuel des agents</div>
-<div class="psub">Sous-dossiers au nom des matricules, générés automatiquement dès sélection du dossier racine.</div>
-<div class="tbar"><input class="in" id="dsSearch" data-tip="Rechercher un agent par nom ou matricule" placeholder="🔍 Rechercher…" style="width:230px"><span class="sp"></span><span class="tinfo" id="dsInfo"></span></div>
-<div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th data-tip="Numéro d'ordre">N°</th><th data-tip="Nom et prénom de l'agent">Nom &amp; Prénom</th><th data-tip="Nom du sous-dossier individuel (matricule)">Dossier individuel (matricule)</th><th data-tip="État du sous-dossier dans le dossier racine indexé">État</th><th style="width:170px" data-tip="Ouvrir le contenu du dossier individuel">Actions</th></tr></thead><tbody id="dsBody"></tbody></table></div></div>
+<div class="psub">Sous-dossiers au nom des matricules, générés automatiquement.</div>
+<div class="tbar"><input class="in" id="dsSearch" placeholder="🔍 Rechercher…" style="width:230px"><span class="sp"></span><span class="tinfo" id="dsInfo"></span></div>
+<div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th>N°</th><th>Nom &amp; Prénom</th><th>Dossier individuel</th><th>État</th><th style="width:170px">Actions</th></tr></thead><tbody id="dsBody"></tbody></table></div></div>
 <div class="pgbar" id="dsPager"></div>
 </section>
+
 <section class="page" id="pg-actions">
 <div class="ptitle">Listes des actions effectuées</div>
-<div class="psub">Combobox des types (ordre alphabétique) ; ✏️ modifier, 📄 imprimer (Word), 🗑 supprimer ; classeur « Agents.xlsx » (feuille par type + Agents + Sortis, mis en forme) synchronisé automatiquement.</div>
+<div class="psub">Combobox des types (ordre alphabétique) ; ✏️ modifier, 📄 imprimer, 🗑 supprimer.</div>
 <div class="tbar">
 <label class="fl" style="margin:0">Type d'action</label>
-<select class="in" id="mvSelect" data-tip="Sélectionner le type d'acte à lister (tri alphabétique ; compteur par type)" style="width:400px"></select>
+<select class="in" id="mvSelect" style="width:400px"></select>
 <span class="tinfo" id="mvTitle"></span>
 <span class="sp"></span>
-<button class="btn ghost" id="mvExportDir" data-tip="Indexer le dossier d'export (ex. C:\GESTION_DU_PERSONNEL\GESTION)">📂 Dossier export…</button>
-<button class="btn gold" id="mvExportX" data-tip="Générer/synchroniser le classeur Agents.xlsx (feuilles types + Agents + Sortis)">📤 Excel Agents.xlsx</button>
-<button class="btn red" id="mvNew" data-tip="Créer une action du type sélectionné (modal complet)">➕ Nouvelle action</button>
+<button class="btn ghost" id="mvExportDir">📂 Dossier export…</button>
+<button class="btn gold" id="mvExportX">📤 Excel Agents.xlsx</button>
+<button class="btn red" id="mvNew">➕ Nouvelle action</button>
 </div>
 <div class="tw"><div class="tscroll"><table class="tbl"><thead><tr><th>N°</th><th>N° Matri.</th><th>Nom &amp; Prénom</th><th>Dir.</th><th>N° Pièce</th><th>Période / Date</th><th>Signataire</th><th>Enreg. le</th><th style="width:130px">Actions</th></tr></thead><tbody id="mvBody"></tbody></table></div></div>
 </section>
+
 <section class="page" id="pg-stats">
 <div class="ptitle">Statistiques</div>
 <div class="psub">Quantifie les actions par agent et par type d'acte. Rapport Word / PDF pour la hiérarchie.</div>
-<div class="tbar"><button class="btn red" id="stWord" data-tip="Télécharger le rapport statistique Word (paysage, tableau croisé)">📄 Rapport Word</button><button class="btn gold" id="stPdf" data-tip="Ouvrir l'impression PDF du tableau statistique">🖨 Rapport PDF</button><span class="sp"></span><span class="tinfo" id="stInfo"></span></div>
+<div class="tbar"><button class="btn red" id="stWord">📄 Rapport Word</button><button class="btn gold" id="stPdf">🖨 Rapport PDF</button><span class="sp"></span><span class="tinfo" id="stInfo"></span></div>
 <div class="tw"><div class="tscroll" id="stScroll"></div></div>
 </section>
+
 <section class="page" id="pg-aide">
 <div class="ptitle">Guide d'utilisation</div>
 <div class="psub">Document détaillé pour faciliter la compréhension des utilisateurs.</div>
-<div class="tbar"><input class="in" id="guideSearch" data-tip="Rechercher dans le guide (déploie automatiquement les rubriques trouvées)" placeholder="🔍 Rechercher…" style="width:270px">
-<button class="btn ghost" id="guideExpandAll" data-tip="Déplier toutes les rubriques du guide">➕ Tout déplier</button>
-<button class="btn ghost" id="guideCollapseAll" data-tip="Replier toutes les rubriques du guide">➖ Tout replier</button>
+<div class="tbar"><input class="in" id="guideSearch" placeholder="🔍 Rechercher…" style="width:270px">
+<button class="btn ghost" id="guideExpandAll">➕ Tout déplier</button>
+<button class="btn ghost" id="guideCollapseAll">➖ Tout replier</button>
 <span class="sp"></span><span class="tinfo" id="guideCount"></span></div>
-<details class="acc" open><summary>1. Connexion et sécurité</summary><div class="abody">
-<p>Page de garde : compte initial créé automatiquement (identifiants <b>non affichés</b> à la connexion) : <b>Admin / admin</b> — à changer dès la première utilisation via Paramètres → Utilisateurs. Déconnexion (🚪) avec confirmation.</p>
-<p><b>Seul un Administrateur</b> peut supprimer un agent ou tout effacer ; motif + mot de passe + confirmation exigés.</p>
-<p>À l'ouverture de session, le système <b>vérifie l'existence de « Agents.xlsx »</b> dans le dossier d'export indexé et <b>le crée automatiquement s'il est absent</b>.</p>
-<p>Tous les boutons et champs importants portent une <b>info-bulle explicative</b> (survol) ; taille, police et couleurs réglables dans Paramètres → Logo & Infobulles.</p>
-<p><b>Fenêtres modales :</b> elles ne se ferment <b>jamais</b> en cliquant hors d'elles — fermeture uniquement par ✕, Annuler ou les boutons d'enregistrement. Elles sont <b>déplaçables</b> par glisser-déposer sur la <b>barre de titre</b> (poignée ⠿).</p>
+<details class="acc" open><summary>1. Connexion et Cloud (synchronisation multi-postes)</summary><div class="abody">
+<p><b>🚀 Comment ça marche :</b> À la connexion, le système transfère automatiquement l'URL et la clé Supabase officielles. <b>Chaque modification</b> est <b>immédiatement poussée vers le Cloud</b>. <b>Toutes les 60 secondes</b>, tous les postes connectés <b>récupèrent automatiquement</b> les dernières données.</p>
+<p><b>Identifiants par défaut :</b> utilisateur <code>Admin</code> / mot de passe <code>ktibw</code> (ou <code>admin</code>).</p>
+<p><b>Fenêtres modales :</b> elles ne se ferment <b>jamais</b> en cliquant hors d'elles. Elles sont <b>déplaçables</b> en glissant la barre de titre.</p>
 </div></details>
-<details class="acc"><summary>2. Démarrage rapide & tableau de bord</summary><div class="abody">
-<ol><li>Paramètres → Données : importez le fichier Excel des agents (colonnes A à W ; fusion par matricule).</li>
-<li>Paramètres → Données : importez le fichier Excel des <b>postes occupés</b> (colonne A).</li>
+<details class="acc"><summary>2. Démarrage rapide</summary><div class="abody">
+<ol>
+<li>Paramètres → Données : importez le fichier Excel des agents (colonnes A à W ; fusion par matricule).</li>
+<li>Paramètres → Données : importez les <b>postes occupés</b> (colonne A) pour les combobox.</li>
 <li>Paramètres → Chemin d'accès : dossier global ; sous-dossiers matricules créés automatiquement.</li>
 <li>Paramètres → Données : 📂 Dossier d'export… → sélectionnez <b>C:\GESTION_DU_PERSONNEL\GESTION</b>.</li>
-<li>Agents pour les actions → 🔁 Nouvelle action → type → Continuer → compléter.</li>
-<li>💾 Enregistrer ou 💾 Enregistrer & Imprimer (Word) : télécharge le Word + le classe dans <b>[matricule]/Actions/</b>.</li>
-<li>Tableau de bord : histogrammes croissants (du plus petit au plus grand) à <b>barres d'un tiers de centimètre</b>, remplissage progressif animé.</li></ol>
+<li>Agents pour les actions → 🔁 Nouvelle action → type → Continuer.</li>
+<li>💾 <b>Enregistrer</b> ou 💾 <b>Enregistrer & Imprimer (Word)</b> (Téléchargements + [matricule]/Actions).</li>
+</ol>
 </div></details>
-<details class="acc"><summary>3. Stockage & sauvegardes</summary><div class="abody">
-<ul><li>IndexedDB auto-réparant (sonde + reconstruction), repli localStorage puis mémoire avec bandeau rouge (🔄 /  / 📥).</li>
-<li>Enregistrement automatique après l'importation et après toute action (pastille « Enregistré ✓ »).</li></ul>
+<details class="acc"><summary>3. Messages & Fichiers</summary><div class="abody">
+<p>Nouvel onglet <b>💬 Messages & Fichiers</b> pour la communication entre utilisateurs :</p>
+<ul>
+<li>✉️ <b>Nouveau message</b> : destinataire (tous ou un utilisateur précis), sujet, corps du message.</li>
+<li>📎 <b>Envoyer un fichier</b> : tout type de fichier, visible par tous les utilisateurs.</li>
+<li>Les messages non lus sont marqués en rouge à gauche.</li>
+<li><b>Suivi des lecteurs</b> : pour chaque message/fichier, la liste des utilisateurs ayant lu est affichée.</li>
+</ul>
 </div></details>
-<details class="acc"><summary>4. Liste des agents</summary><div class="abody"><p>Édition directe (Entrée = enregistrer, Échap = annuler), calendrier pour les dates, combobox Sexe / Situation matrimoniale / Direction, recherches générale + Nom + Prénoms + Direction + cellules vides par colonne, 📋 Colonnes, cellule retraite rouge si départ cette année, ✏️ Modifier / 🗑 Supprimer (motifs : retraite, fin de détachement, décès, erreur, autres).</p></div></details>
-<details class="acc"><summary>5. Fiche agent</summary><div class="abody"><p>◀ Précédent / Suivant ▶ naviguent dans la liste triée et <b>enregistrent automatiquement</b>. Ajout : numéro = dernier + 1 ; NOM en majuscules ; PRÉNOM première lettre majuscule.</p></div></details>
-<details class="acc"><summary>6. Actions, contingent & classeur « Agents.xlsx »</summary><div class="abody"><p><b>26 types d'actions</b>. Autorisation d'absence : 10 j/an, débordement imputé au congé annuel (30 j) notifié en pied de page Word. Jouissance de congé annuel : fin et reprise automatiques. Anti-chevauchement.</p>
-<p><b>Règle des périodes :</b> si les deux extrémités tombent dans le <b>même mois de la même année</b>, le système écrit « <b>du lundi 5 au mercredi 7 octobre 2026</b> » ; sinon la forme complète est utilisée.</p>
-<p>📄 <b>Agents.xlsx</b> : un onglet par type d'action + « Agents » + « Sortis ». En-têtes gras fond bleu, bordures noires. Réalimentable (Paramètres → Données).</p></div></details>
-<details class="acc"><summary>7. Tableaux dynamiques</summary><div class="abody"><p><b>Certificats administratifs</b> : tableau 2 colonnes (Type de revenu / Statut) + saisie libre + ➕ lignes. <b>Certificat de cessation de paiement non redevable</b> : revenus + retenues. <b>Attestation de travail fonction</b> : tableau 1 colonne disciplines (saisie libre). <b>Attestation de travail poste / Certificat de travail</b> : tableau 2 colonnes (Poste occupé / Période) avec liste officielle des postes + saisie libre. Notes collectives : ➕ Ajouter un agent / une décision.</p></div></details>
-<details class="acc"><summary>8. Ampliations & signatures</summary><div class="abody"><p><b>Ampliations spécifiques :</b> sans ampliations → prises en charge salariales, stage, attestations de travail, certificats administratifs, cessation générique, <b>autorisation d'absence</b> (corps conforme au modèle, sans phrase d'ampliations) ; <b>-DRH</b> → maternité, prise de service, reprise, certificat de travail ; <b>-CARFO, -DRH/MEBAPLN, -DRH/INFPE</b> → fin de détachement et retraite ; <b>-DRH, [direction], -Chrono</b> → jouissance de congé.</p>
-<p><b>Autorisation d'absence :</b> notification en bas de page des jours consommés (10 j/an) et, en cas de débordement, de l'imputation sur le congé annuel (30 j).</p>
-<p><b>Signatures centrées :</b> DG → Prénom NOM ; SG → « Pour le Directeur général et P/D » ; DR → « Pour le Directeur général et P/O » ; intérimaire → « Pour le Directeur général et P/I » ; distinction honorifique en taille 9 italique sous le nom.</p></div></details>
-<details class="acc"><summary>9. Numéros officiels & postes</summary><div class="abody"><p>Champ Numéro + sigle sélectionnable/saisissable : INFPE/DG/SG/DRH, …/DRINFPE BNK, DJR, GRK, GLM, NKB, OBR, YDG. Postes occupés en combobox (liste officielle du certificat de travail + import colonne A) avec « ✏️ Saisie libre ».</p></div></details>
-<details class="acc"><summary>10. Impression Word</summary><div class="abody"><p>En-tête : timbre + logo + BURKINA FASO + devise (en-tête seulement), lignes invisibles ; fonction complément de l'emploi ; accords masculin/féminin ; ampliations Arial 9 alignées à gauche avec « 01 » ; « Fait à …, le … » aligné à droite (note d'intérim).</p></div></details>
-<details class="acc"><summary>11. Dossier individuel, sortis & statistiques</summary><div class="abody"><p>📂 Ouvrir affiche fichiers/sous-dossiers du matricule ; 👁 ouvre un fichier ; classement auto des Word dans [matricule]/Actions/. <b>Agents ayant quitté</b> : boutons 🏁 Retraite / 🏁 Fin détachement / 🏁 Certificat selon le motif + ↩️ Réintégrer. Statistiques : tableau croisé agent × type, exports Word (paysage) et PDF.</p></div></details>
-<details class="acc"><summary>12. Dépannage</summary><div class="abody"><table class="mini"><tr><th>Problème</th><th>Solution</th></tr>
-<tr><td>Connexion refusée</td><td>Admin / admin (compte initial), ou compte créé dans Paramètres → Utilisateurs.</td></tr>
-<tr><td>Suppression refusée</td><td>Compte Administrateur + mot de passe requis.</td></tr>
-<tr><td>Bandeau rouge mémoire</td><td>🔄 Retenter ou 🧬 JSON puis restauration Chrome/Edge.</td></tr>
-<tr><td>Excel : format invalide</td><td>Noms de feuilles ≤ 31 ; régénérez via 📤 Générer / synchroniser.</td></tr>
-<tr><td>Pas de mise en forme Excel</td><td>Si xlsx-js-style n'a pas pu charger (hors ligne), rechargez avec Internet.</td></tr></table></div></details>
 </section>
 </main>
 </div>
 </div>
+
 <div class="mback" id="agentModal"><div class="modal">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3 id="amTitle">Agent</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer sans enregistrer">✕</button></div>
+<div class="mhead"><h3 id="amTitle">Agent</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody"><fieldset class="fgrp"><legend>Fiche de l'agent</legend><div class="fgrid" id="amGrid"></div></fieldset></div>
-<div class="mfoot"><button class="btn ghost" id="amPrev" data-tip="Enregistrer automatiquement puis afficher l'agent précédent">◀ Précédent</button><span class="mpos" id="amPos"></span><button class="btn ghost" id="amNext" data-tip="Enregistrer automatiquement puis afficher l'agent suivant">Suivant ▶</button><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer sans enregistrer">Annuler</button><button class="btn red" id="amSave" data-tip="Enregistrer la fiche dans le stockage permanent">💾 Enregistrer</button></div>
+<div class="mfoot"><button class="btn ghost" id="amPrev">◀ Précédent</button><span class="mpos" id="amPos"></span><button class="btn ghost" id="amNext">Suivant ▶</button><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="amSave">💾 Enregistrer</button></div>
 </div></div>
+
 <div class="mback" id="typeModal"><div class="modal sm">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3>Choisir le type d'action</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer sans choisir">✕</button></div>
+<div class="mhead"><h3>Choisir le type d'action</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody"><div style="margin-bottom:10px;font-weight:700" id="tmAgent"></div><div class="typegrid" id="tmGrid" style="max-height:52vh;overflow:auto"></div></div>
-<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer sans choisir">Annuler</button><button class="btn red" id="tmGo" data-tip="Ouvrir le formulaire du type d'acte sélectionné">Continuer ▶</button></div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="tmGo">Continuer ▶</button></div>
 </div></div>
+
 <div class="mback" id="mvModal"><div class="modal">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3 id="mmTitle">Action</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer sans enregistrer">✕</button></div>
+<div class="mhead"><h3 id="mmTitle">Action</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody">
 <fieldset class="fgrp" id="mmIdBox"><legend>Identification de l'agent</legend><div class="fgrid" id="mmId"></div></fieldset>
 <fieldset class="fgrp"><legend>Informations de l'action</legend><div class="fgrid" id="mmFields"></div>
-<div id="mmIndBox" style="display:none;grid-column:1/-1"><label class="fl">Revenus / indemnités (tableau 2 colonnes)</label><div style="overflow:auto"><table class="coll" id="mmIndTable"><thead><tr><th style="width:45%" data-tip="Combobox : 8 types de revenu ou saisie libre">Type de revenu</th><th data-tip="Saisie libre : déjà servi(e), P/C du …, néant…">Statut</th><th style="width:60px"></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddInd" data-tip="Ajouter une ligne au tableau des revenus" style="margin-top:6px">➕ Ajouter une ligne</button></div>
-<div id="mmRetBox" style="display:none;grid-column:1/-1"><label class="fl">Retenues (tableau 2 colonnes)</label><div style="overflow:auto"><table class="coll" id="mmRetTable"><thead><tr><th style="width:45%" data-tip="Combobox : Pension civil, IUTS, Fonds de Soutien, RAMU ou saisie libre">Type de retenue</th><th data-tip="Saisie libre du statut de la retenue">Statut</th><th style="width:60px"></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddRet" data-tip="Ajouter une ligne au tableau des retenues" style="margin-top:6px">➕ Ajouter une ligne</button></div>
-<div id="mmFuncBox" style="display:none;grid-column:1/-1"><label class="fl">Postes occupés (tableau 2 colonnes)</label><div style="overflow:auto"><table class="coll" id="mmFuncTable"><thead><tr><th style="width:55%" data-tip="Combobox : DG, DES, DAF, DRH ou saisie libre">Type de poste occupé</th><th data-tip="Saisie libre de la période">Période</th><th style="width:60px"></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddFunc" data-tip="Ajouter une ligne au tableau des postes" style="margin-top:6px">➕ Ajouter une ligne</button></div>
-<div id="mmPosteBox" style="display:none;grid-column:1/-1"><label class="fl">Postes occupés et périodes (tableau 2 colonnes)</label><div style="overflow:auto"><table class="coll" id="mmPosteTable"><thead><tr><th style="width:55%" data-tip="Poste occupé : liste officielle + postes importés + saisie libre">Poste occupé</th><th data-tip="Période : saisie libre">Période</th><th style="width:60px"></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddPoste" data-tip="Ajouter une ligne poste / période" style="margin-top:6px">➕ Ajouter une ligne</button></div>
-<div id="mmDiscBox" style="display:none;grid-column:1/-1"><label class="fl">Disciplines enseignées (tableau 1 colonne — saisie libre)</label><div style="overflow:auto"><table class="coll" id="mmDiscTable"><thead><tr><th data-tip="Saisie libre directe ou choix dans la liste proposée">Discipline</th><th style="width:60px"></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddDisc" data-tip="Ajouter une discipline au tableau" style="margin-top:6px">➕ Ajouter une ligne</button></div>
-<div id="mmCollDec" style="display:none;grid-column:1/-1"><label class="fl">Décisions additionnelles</label><div id="mmDecList"></div><button class="btn ghost" id="mmAddDec" data-tip="Ajouter un numéro (et une date) de décision supplémentaire" style="margin-top:6px">➕ Ajouter une décision</button></div>
-<div id="mmCollBox" style="display:none;grid-column:1/-1"><label class="fl">Agents affectés</label><div style="overflow:auto"><table class="coll" id="mmCollTable"><thead id="mmCollHead"></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddAgent" data-tip="Ajouter un agent au tableau collectif (👤 pour choisir dans la liste)" style="margin-top:6px">➕ Ajouter un agent</button></div>
+<div id="mmIndBox" style="display:none;grid-column:1/-1"><label class="fl">Revenus / indemnités</label><div style="overflow:auto"><table class="coll" id="mmIndTable"><thead><tr><th>Type de revenu</th><th>Statut</th><th></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddInd" style="margin-top:6px">➕ Ajouter une ligne</button></div>
+<div id="mmRetBox" style="display:none;grid-column:1/-1"><label class="fl">Retenues</label><div style="overflow:auto"><table class="coll" id="mmRetTable"><thead><tr><th>Type de retenue</th><th>Statut</th><th></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddRet" style="margin-top:6px">➕ Ajouter une ligne</button></div>
+<div id="mmFuncBox" style="display:none;grid-column:1/-1"><label class="fl">Postes occupés</label><div style="overflow:auto"><table class="coll" id="mmFuncTable"><thead><tr><th>Type de poste occupé</th><th>Période</th><th></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddFunc" style="margin-top:6px">➕ Ajouter une ligne</button></div>
+<div id="mmPosteBox" style="display:none;grid-column:1/-1"><label class="fl">Postes occupés et périodes</label><div style="overflow:auto"><table class="coll" id="mmPosteTable"><thead><tr><th>Poste occupé</th><th>Période</th><th></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddPoste" style="margin-top:6px">➕ Ajouter une ligne</button></div>
+<div id="mmDiscBox" style="display:none;grid-column:1/-1"><label class="fl">Disciplines enseignées</label><div style="overflow:auto"><table class="coll" id="mmDiscTable"><thead><tr><th>Discipline</th><th></th></tr></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddDisc" style="margin-top:6px">➕ Ajouter une ligne</button></div>
+<div id="mmCollDec" style="display:none;grid-column:1/-1"><label class="fl">Décisions additionnelles</label><div id="mmDecList"></div><button class="btn ghost" id="mmAddDec" style="margin-top:6px">➕ Ajouter une décision</button></div>
+<div id="mmCollBox" style="display:none;grid-column:1/-1"><label class="fl">Agents affectés</label><div style="overflow:auto"><table class="coll" id="mmCollTable"><thead id="mmCollHead"></thead><tbody></tbody></table></div><button class="btn ghost" id="mmAddAgent" style="margin-top:6px">➕ Ajouter un agent</button></div>
 </fieldset>
-<fieldset class="fgrp"><legend>Signataire du document</legend><select class="in" id="mmSig" data-tip="Signataire repris des Paramètres → Signataires (mention P/D, P/O, P/I automatique)"></select></fieldset>
+<fieldset class="fgrp"><legend>Signataire du document</legend><select class="in" id="mmSig"></select></fieldset>
 </div>
-<div class="mfoot"><button class="btn ghost" id="mmPrev" data-tip="Agent précédent (enregistrement automatique)">◀ Précédent</button><span class="mpos" id="mmPos"></span><button class="btn ghost" id="mmNext" data-tip="Agent suivant (enregistrement automatique)">Suivant ▶</button><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer sans enregistrer">Annuler</button><button class="btn" id="mmSave" data-tip="Enregistrer l'action selon son type et fermer">💾 Enregistrer</button><button class="btn red" id="mmSavePrint" data-tip="Enregistrer + télécharger le Word (Téléchargements + [matricule]/Actions) et fermer">💾 Enregistrer &amp; Imprimer (Word)</button></div>
+<div class="mfoot"><button class="btn ghost" id="mmPrev">◀ Précédent</button><span class="mpos" id="mmPos"></span><button class="btn ghost" id="mmNext">Suivant ▶</button><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn" id="mmSave">💾 Enregistrer</button><button class="btn red" id="mmSavePrint">💾 Enregistrer &amp; Imprimer (Word)</button></div>
 </div></div>
+
 <div class="mback" id="uModal"><div class="modal sm">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3 id="umTitle"></h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer sans enregistrer">✕</button></div>
+<div class="mhead"><h3 id="umTitle"></h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody"><fieldset class="fgrp"><legend id="umLeg"></legend><div class="fgrid" id="umGrid" style="grid-template-columns:1fr 1fr"></div></fieldset></div>
-<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer sans enregistrer">Annuler</button><button class="btn red" id="umSave" data-tip="Enregistrer le compte utilisateur ou le signataire">💾 Enregistrer</button></div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="umSave">💾 Enregistrer</button></div>
 </div></div>
+
 <div class="mback" id="delModal"><div class="modal xs">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3>🗑 Supprimer un agent</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Annuler la suppression">✕</button></div>
+<div class="mhead"><h3>🗑 Supprimer un agent</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody">
-<div style="font-size:12.5px;margin-bottom:12px">Agent : <b id="delName" style="color:var(--red)"></b><br><span style="color:var(--mut)">Réservé aux administrateurs.</span></div>
+<div style="font-size:12.5px;margin-bottom:12px">Agent : <b id="delName" style="color:var(--red)"></b></div>
 <fieldset class="fgrp"><legend>Motif + mot de passe</legend>
 <div style="margin-bottom:10px"><label class="fl">Motif</label>
-<select class="in" id="delMotif" data-tip="Motif obligatoire : retraite, fin de détachement, décès, erreur, autres"><option value="">— Choisir —</option><option>Départ à la retraite</option><option>Fin de détachement</option><option>Décès</option><option>Erreur de saisie</option><option>Autres</option></select></div>
-<div style="margin-bottom:10px"><label class="fl">Précisions (obligatoires pour « Autres »)</label><textarea class="in" id="delDetail" data-tip="Précisions requises si le motif est « Autres »"></textarea></div>
-<div style="margin-bottom:10px"><label class="fl">🔒 Votre mot de passe</label><input type="password" class="in" id="delPass" data-tip="Mot de passe de votre compte (vérification)"></div>
-<div><label class="fl">🔒 Confirmer le mot de passe</label><input type="password" class="in" id="delPass2" data-tip="Saisie identique exigée"></div>
+<select class="in" id="delMotif"><option value="">— Choisir —</option><option>Départ à la retraite</option><option>Fin de détachement</option><option>Décès</option><option>Erreur de saisie</option><option>Autres</option></select></div>
+<div style="margin-bottom:10px"><label class="fl">Précisions</label><textarea class="in" id="delDetail"></textarea></div>
+<div style="margin-bottom:10px"><label class="fl">🔒 Votre mot de passe</label><input type="password" class="in" id="delPass"></div>
+<div><label class="fl">🔒 Confirmer le mot de passe</label><input type="password" class="in" id="delPass2"></div>
 </fieldset>
 </div>
-<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close data-tip="Annuler la suppression">Annuler</button><button class="btn red" id="delConfirm" data-tip="Supprimer après vérification du motif et du mot de passe">🗑 Confirmer</button></div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="delConfirm">🗑 Confirmer</button></div>
 </div></div>
+
 <div class="mback" id="colsModal"><div class="modal sm">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3 id="cmTitle">📋 Colonnes à afficher</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer sans appliquer">✕</button></div>
+<div class="mhead"><h3 id="cmTitle">📋 Colonnes à afficher</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody">
-<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn red" id="colsAll" data-tip="Cocher toutes les colonnes">✔ Tout afficher</button><button class="btn ghost" id="colsReset" data-tip="Revenir à la sélection par défaut">↺ Réinitialiser</button></div>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn red" id="colsAll">✔ Tout afficher</button><button class="btn ghost" id="colsReset">↺ Réinitialiser</button></div>
 <div id="colsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:380px;overflow:auto;padding:2px"></div>
 </div>
-<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer sans appliquer">Annuler</button><button class="btn red" id="colsApply" data-tip="Appliquer la sélection des colonnes au tableau">💾 Appliquer</button></div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="colsApply">💾 Appliquer</button></div>
 </div></div>
+
 <div class="mback" id="dossierModal"><div class="modal sm">
-<div class="mhead" data-tip="Glissez la barre pour déplacer la fenêtre"><h3 id="dsTitle">Dossier</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close data-tip="Fermer l'explorateur de dossier">✕</button></div>
+<div class="mhead"><h3 id="dsTitle">Dossier</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
 <div class="mbody"><div style="margin-bottom:10px;font-weight:700" id="dsAgent"></div><div id="dsList" style="max-height:420px;overflow:auto;border:1pt solid var(--line);border-radius:6px;background:#fff"></div></div>
-<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close data-tip="Fermer l'explorateur de dossier">Fermer</button></div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Fermer</button></div>
 </div></div>
+
+<div class="mback" id="msgModal"><div class="modal sm">
+<div class="mhead"><h3 id="msgModalTitle">✉️ Nouveau message</h3><span class="drag-grip">⠿</span><button class="xbtn" data-close>✕</button></div>
+<div class="mbody">
+<fieldset class="fgrp"><legend>Message</legend>
+<div style="margin-bottom:10px"><label class="fl">Destinataire</label>
+<select class="in" id="msgDest"><option value="__all__">📢 Tous les utilisateurs</option></select></div>
+<div style="margin-bottom:10px"><label class="fl">Sujet</label><input class="in" id="msgSubject" placeholder="Sujet du message"></div>
+<div style="margin-bottom:10px"><label class="fl">Message</label><textarea class="in" id="msgBody" rows="6" placeholder="Écrire votre message…"></textarea></div>
+<div><label class="fl">📎 Fichier joint (optionnel)</label><input type="file" id="msgAttach"></div>
+</fieldset>
+</div>
+<div class="mfoot"><span class="sp"></span><button class="btn ghost" data-close>Annuler</button><button class="btn red" id="msgSend">📤 Envoyer</button></div>
+</div></div>
+
 <div id="prog"><div class="pcard"><div class="spinner"></div><div id="progTxt">Importation en cours…</div></div></div>
 <div id="toasts"></div>
 <div id="tip"></div>
 <div id="storageBanner">
-<span style="flex:1">⚠ <b>Stockage volatile (mémoire) :</b> IndexedDB et localStorage refusent le volume. Téléchargez une sauvegarde JSON puis restaurez-la dans Chrome/Edge hors navigation privée.</span>
-<button class="btn ghost" id="bnRetry" data-tip="Retenter l'activation du stockage IndexedDB persistant">🔄 Retenter</button>
-<button class="btn gold" id="bnBackup" data-tip="Télécharger immédiatement une sauvegarde JSON complète">🧬 Sauvegarde JSON</button>
-<label class="btn ghost" style="cursor:pointer" data-tip="Restaurer une sauvegarde JSON précédemment téléchargée">📥 Restaurer<input type="file" id="bnRestore" accept=".json" style="display:none"></label>
+<span style="flex:1">⚠ <b>Stockage volatile :</b> IndexedDB refuse le volume.</span>
+<button class="btn ghost" id="bnRetry">🔄 Retenter</button>
+<button class="btn gold" id="bnBackup">🧬 Sauvegarde JSON</button>
+<label class="btn ghost" style="cursor:pointer">📥 Restaurer<input type="file" id="bnRestore" accept=".json" style="display:none"></label>
 </div>
+
 <script>
-/* ═══════════ CONSTANTES ═══════════ */
+'use strict';
 const YEAR=new Date().getFullYear(),PAGE=36,AA_MAX=10,CA_MAX=30;
+const SUPABASE_URL='https://dlpebbpvxpdmeknmfobx.supabase.co';
+const SUPABASE_KEY='sb_publishable_4Xw0TQeuEMxhwg9msSa4Iw_e3js3yc7';
+let supabaseClient=null,cloudPullTimer=null;
+
+const USER_DIRS=[
+  'Agence Comptable', 'Bureau comptable Matières principal', 
+  'Direction de la Formation continue et de la Recherche-action', 
+  "Direction de l'Administration des Finances", 
+  'Direction des Etudes et des Stages', 
+  'Direction des Ressources humaines', 
+  'Direction générale', 
+  "Direction régionale de l'INFPE de Bankui", 
+  "Direction régionale de l'INFPE de Oubri", 
+  "Direction régionale de l'INFPE de Yaadga", 
+  "Direction régionale de l'INFPE du Djôrô", 
+  "Direction régionale de l'INFPE du Goulmou", 
+  "Direction régionale de l'INFPE du Guiriko", 
+  "Direction régionale de l'INFPE du Liptako", 
+  "Direction régionale de l'INFPE du Nakambé", 
+  'Secrétariat général'
+];
+
 const SEXES=['Masculin','Féminin'];
 const MATRIM=['Célibataire','Marié','Mariée','Divorcé','Divorcée','Veuf','Veuve'];
 const TRANCHES=['tranche unique de trente (30) jours','première tranche de quinze (15) jours','deuxième tranche de quinze (15) jours'];
@@ -560,6 +659,7 @@ const TRANCHES_REP=['pour jouir de la première tranche','pour jouir de la deuxi
 const UTYPES=['Administrateur','Directeur','Chef de service','Agent'];
 const PROV=['Balé','Bam','Banwa','Bassitenga','Bazèga','Bougouriba','Boulgou','Boulkiemdé','Comoé','Djelgodji','Dyamongou','Ganzourgou','Gnagna','Gourma','Houet','Ioba','Kadiogo','Karo-Peli','Kénédougou','Komandjari','Kompienga','Kossin','Koulpélogo','Kouritenga','Kourwéogo','Léraba','Loroum','Mouhoun','Nahouri','Namentenga','Nayala','Noumbiel','Oudalan','Passoré','Poni','Sandbondtenga','Sanguié','Séno','Sissili','Sourou','Tapoa','Tuy','Yagha','Yatenga','Ziro','Zondoma','Zoundwéogo'];
 const MOTIFS=['Raison de famille','Raisons de famille','Raison familiale','Raisons familiales'];
+const AA_AMPLIATIONS=['DRH','Chrono'];
 const SUFIXES=['INFPE/DG/SG/DRH','INFPE/DG/SG/DRINFPE BNK','INFPE/DG/SG/DRINFPE DJR','INFPE/DG/SG/DRINFPE GRK','INFPE/DG/SG/DRINFPE GLM','INFPE/DG/SG/DRINFPE NKB','INFPE/DG/SG/DRINFPE OBR','INFPE/DG/SG/DRINFPE YDG'];
 const REV_TYPES=['Salaire indiciaire','Indemnité de logement','Indemnité de responsabilité','Indemnité de résidence','Allocation familiale','Indemnité d\u2019astreinte','Indemnité de technicité','Indemnité spécifique harmonisée'];
 const RET_TYPES=['Pension civil','IUTS','Retenue Fonds de Soutien patriotique','Retenue RAMU'];
@@ -579,7 +679,7 @@ const DIRS=['Direction Générale','Secrétariat Général','Direction des Resso
 const DEFAULT_COLS=['NUMERO','NOM','PRENOM','NOMPRENOM','SEXE','DATENAISSANCE','SITUATIONMATRI','NOMBREENFANTS','MATRICULE','EMPLOI','CATEGORIE','ECHELLE','CLASSE','ECHELON','DATEINTEGRATION','DATEDERRECLA','DATEDETACHT','DIRECTION','SERVICE','FONCTION','DISTINCTION','DATEDELARETRAITE','TELEPHONNE'];
 const HIDE=new Set(['NOMBREENFANTS','CATEGORIE','ECHELLE','CLASSE','ECHELON','DATEINTEGRATION','DATEDERRECLA','DATEDETACHT','DISTINCTION','TELEPHONNE']);
 const HEADER_MAP={'NOM ET PRENOM':'NOMPRENOM','DATE DE NAISSANCE':'DATENAISSANCE','SITUATION MATRIMONIALE':'SITUATIONMATRI',"NOMBRE D'ENFANTS":'NOMBREENFANTS','CATEGORIE/ECHELLE':'CATEGORIE','DATE INTEGRATION':'DATEINTEGRATION','DATE DER RECLA':'DATEDERRECLA','DATE DE DETACHEMENT':'DATEDETACHT','DISTINCTION HONORIFIQUES':'DISTINCTION','DATE DE LA RETRAITE':'DATEDELARETRAITE'};
-/* ═══════════ CHAMPS ═══════════ */
+
 const FDEF={
 demande:{k:'demande',l:'Date de la demande',t:'date'},debut:{k:'debut',l:'Date de début',t:'date'},fin:{k:'fin',l:'Date de fin',t:'date'},
 duree:{k:'duree',l:'Durée en heures (auto)',t:'num',ro:1},destination:{k:'destination',l:'Destination',t:'text'},
@@ -591,7 +691,7 @@ finPEC:{k:'finPEC',l:'Date de fin de prise en charge',t:'date'},posteOccupe:{k:'
 nominationPoste:{k:'nominationPoste',l:'Poste de nomination',t:'poste'},affectService:{k:'affectService',l:'Affectation (service / structure)',t:'text'},
 qualite:{k:'qualite',l:'En qualité de',t:'text',fromAgent:'fct'},lieuService:{k:'lieuService',l:'Service / lieu de travail',t:'text'},
 stageQualite:{k:'stageQualite',l:'Qualité / formation du stagiaire',t:'text'},stageLieu:{k:'stageLieu',l:'Structure d\u2019accueil du stage',t:'text'},
-posteTitulaire:{k:'posteTitulaire',l:'Poste du titulaire absent',t:'poste'},motifAbsence:{k:'motifAbsence',l:"Motif de l'absence (ex. : en mission)",t:'text'},
+posteTitulaire:{k:'posteTitulaire',l:'Poste du titulaire absent',t:'poste'},motifAbsence:{k:'motifAbsence',l:"Motif de l'absence",t:'text'},
 debutAbsence:{k:'debutAbsence',l:"Début de l'absence",t:'date'},finAbsence:{k:'finAbsence',l:"Fin de l'absence",t:'date'},
 faitA:{k:'faitA',l:'Fait à (lieu de signature)',t:'text',defVille:1},fonctionPrecedente:{k:'fonctionPrecedente',l:'Fonction précédente',t:'text',fromAgent:'fct'},
 structurePrecedente:{k:'structurePrecedente',l:'Structure précédente',t:'text'},debutPeriode:{k:'debutPeriode',l:'Début de la période',t:'date'},
@@ -610,7 +710,7 @@ trancheRep:{k:'trancheRep',l:'Tranche',t:'sel',opts:TRANCHES_REP},dateReprise:{k
 numNote:{k:'numNote',l:'Numéro de la note',t:'num'},dateNote:{k:'dateNote',l:'Date de la note / signature',t:'date'},
 lieu:{k:'lieu',l:"Lieu d'affectation",t:'text'}};
 const LAB2KEY={};Object.values(FDEF).forEach(fd=>{LAB2KEY[fd.l]=fd.k;});
-/* ═══════════ 26 TYPES D'ACTIONS ═══════════ */
+
 const A=[];
 A.push({key:'apcsr',nom:'Attestation de prise en charge salariale pour régularisation',periode:['debutPEC','finPEC'],fields:['categorieF','echelleF','classeF','echelonF','numArrete','dateArrete','dirOrigine','nvDirection','debutPEC','finPEC']});
 A.push({key:'ca',nom:'Jouissance de congé annuel',periode:['debutConge','finConge'],fields:['numDecision','dateDecision','tranche','debutConge','finConge','reprise']});
@@ -645,11 +745,11 @@ const DOC_TITLES={apcsr:'ATTESTATION DE PRISE EN CHARGE SALARIALE',apcs:'ATTESTA
 const docTitle=k=>DOC_TITLES[k]||(((DEF(k)||{}).nom)||'ATTESTATION').toUpperCase();
 const NO_AMPLI=['apcsr','apcs','astage','atravf','atravp','caa','can','ccs','aa'];
 const AMPLI_BY_TYPE={ccm:['DRH'],cfd:['CARFO','DRH/MEBAPLN','DRH/INFPE'],ccj:'agent',cdr:['CARFO','DRH/MEBAPLN','DRH/INFPE'],cpsn:['DRH'],crs:['DRH'],ct:['DRH']};
-/* ═══════════ ÉTAT ═══════════ */
-const state={columns:[],agents:[],mouvements:[],hidden:new Set(),hiddenAct:new Set(),hiddenQuit:new Set(),settings:{users:[],signataires:[],logo:'',logoW:0,logoH:0,ville:'Ouagadougou',baseDirName:'',exportDirName:'',lastImport:'',persisted:false,postes:[],tip:{size:'13px',font:"'Public Sans',sans-serif",color:'#ffffff',bg:'#1447A6'},timbre:{institut:'INSTITUT NATIONAL DE FORMATION DES PERSONNELS DE L\u2019EDUCATION',dg:'DIRECTION GENERALE',sg:'SECRETARIAT GENERAL',direction:'DIRECTION DES RESSOURCES HUMAINES',service:'',numero:YEAR+'____/INFPE/DG/SG/DRH',ville:'Ouagadougou'}}};
+
+const state={columns:[],agents:[],mouvements:[],messages:[],hidden:new Set(),hiddenAct:new Set(),hiddenQuit:new Set(),settings:{users:[],signataires:[],logo:'',logoW:0,logoH:0,ville:'Ouagadougou',baseDirName:'',exportDirName:'',lastImport:'',persisted:false,postes:[],tip:{size:'13px',font:"'Public Sans',sans-serif",color:'#ffffff',bg:'#1447A6'},timbre:{institut:'INSTITUT NATIONAL DE FORMATION DES PERSONNELS DE L\u2019EDUCATION',dg:'DIRECTION GENERALE',sg:'SECRETARIAT GENERAL',direction:'DIRECTION DES RESSOURCES HUMAINES',service:'',numero:YEAR+'____/INFPE/DG/SG/DRH',ville:'Ouagadougou'},cloud:{url:SUPABASE_URL,key:SUPABASE_KEY}}};
 let det={},agPage=1,alPage=1,dsPage=1,curMv=ALPHA_DEFS()[0].key,mCtx=null,aCtx=null,uCtx=null,tmAgent=null,tmSel=null,currentUser=null,pendingDel=null,aNav=null,baseDirHandle=null,baseDirNames=new Set(),baseScanned=false,dsFileHandles=[],colsTarget='agents',exportDirHandle=null;
 const actAgents=()=>state.agents.filter(a=>!a.sortie);
-/* ═══════════ STOCKAGE ═══════════ */
+
 const LSP='INFPE_LS_',MIRROR='INFPE_MIRROR_V1',DBVER=3;
 let SMODE='probe',mirrorOk=false,mirrorTimer=null,idbWhy='';
 const MEM={agents:[],mouvements:[],kv:{}};
@@ -729,11 +829,46 @@ function storInfo(){try{const kb=Math.round((JSON.stringify(state.agents).length
 $('storInfo').textContent=actAgents().length+' agents • '+state.mouvements.length+' actions • '+storageModeLabel();
 const d=$('dInfo');if(d)d.innerHTML='📦 <b>'+actAgents().length+'</b> agents actifs, <b>'+state.agents.filter(a=>a.sortie).length+'</b> sortis, <b>'+state.mouvements.length+'</b> actions (~'+kb+' Ko).<br>🗄️ '+storageModeLabel()+' • 🧷 miroir '+(mirrorOk?'OK':'—')+' • 📋 postes : <b>'+(state.settings.postes||[]).length+'</b>'+(state.settings.lastImport?'<br>🕒 '+state.settings.lastImport:'');
 const li=$('lastImport');if(li)li.textContent=state.settings.lastImport||'';}catch(e){}}
-const persistAgent=a=>{setSave('busy');DB.put('agents',a).then(()=>setSave('ok'));};
-const persistMv=m=>{setSave('busy');DB.put('mouvements',m).then(()=>{setSave('ok');syncAgentsWorkbook();});};
-const persistKV=()=>{setSave('busy');Promise.all([DB.kvSet('settings',state.settings),DB.kvSet('columns',state.columns)]).then(()=>setSave('ok'));};
+const persistAgent=a=>{setSave('busy');DB.put('agents',a).then(()=>{setSave('ok');cloudPush();});};
+const persistMv=m=>{setSave('busy');DB.put('mouvements',m).then(()=>{setSave('ok');syncAgentsWorkbook();cloudPush();});};
+const persistKV=()=>{setSave('busy');Promise.all([DB.kvSet('settings',state.settings),DB.kvSet('columns',state.columns)]).then(()=>{setSave('ok');cloudPush();});};
 function persistHidden(){setSave('busy');DB.kvSet('hidden',[...state.hidden]).then(()=>DB.kvSet('hiddenAct',[...state.hiddenAct])).then(()=>DB.kvSet('hiddenQuit',[...state.hiddenQuit])).then(()=>setSave('ok'));}
-/* ═══════════ UTILITAIRES ═══════════ */
+
+/* ═══════════ CLOUD SUPABASE ═══════════ */
+function initSupabase(){
+    const c=state.settings.cloud||{};
+    try{supabaseClient=supabase.createClient(c.url||SUPABASE_URL,c.key||SUPABASE_KEY);}catch(e){supabaseClient=null;}
+}
+async function cloudPush(){
+    if(!supabaseClient)return;
+    try{
+        await supabaseClient.from('infpe_data').upsert({
+            site:'INFPE',
+            data:{agents:state.agents,mouvements:state.mouvements,messages:state.messages,settings:state.settings,columns:state.columns},
+            updated_at:new Date().toISOString()
+        },{onConflict:'site'});
+    }catch(e){console.warn('Cloud push error',e);}
+}
+async function cloudPull(silent=true){
+    if(!supabaseClient)return;
+    try{
+        const{data,error}=await supabaseClient.from('infpe_data').select('data, updated_at').eq('site','INFPE').single();
+        if(error||!data)return;
+        const ts=new Date(data.updated_at).getTime();
+        if(ts>(state.lastCloudPullTs||0)){
+            const cd=data.data;
+            if(cd.agents)state.agents=cd.agents;
+            if(cd.mouvements)state.mouvements=cd.mouvements;
+            if(cd.messages)state.messages=cd.messages;
+            if(cd.settings)state.settings={...state.settings,...cd.settings};
+            if(cd.columns)state.columns=cd.columns;
+            state.lastCloudPullTs=ts;
+            refreshAll();
+            if(!silent)toast('✓ Cloud synchronisé.','ok');
+        }
+    }catch(e){if(!silent)toast('⚠ Erreur Cloud.','err');}
+}
+
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,9);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -777,7 +912,7 @@ function formatSize(b){if(b==null)return'';if(b<1024)return b+' o';if(b<1048576)
 const sanitizeFileName=s=>String(s||'').replace(/[\\/:*?"<>|]/g,'').trim();
 function trancheShort(t){if(!t)return'';if(t.indexOf('première')>=0)return'première tranche';if(t.indexOf('deuxième')>=0)return'deuxième tranche';return'tranche unique';}
 function trancheDays(t){if(!t)return 15;return t.indexOf('trente')>=0?30:15;}
-/* ═══════════ COLONNES SOURCE ═══════════ */
+
 function colMatch(re){return state.columns.find(c=>re.test(norm(c)));}
 function detect(){det={};
 det.num=colMatch(/numero/);det.nom=colMatch(/^nom$/);det.prenom=colMatch(/prenom/);det.np=colMatch(/nomprenom/);
@@ -794,37 +929,82 @@ function dirOptions(sel){const set=[...DIRS];state.agents.forEach(a=>{const v=ge
 const directionOf=a=>String(getVal(a,det.dir)||'').trim()||'Non renseignée';
 function agentToIdent(a){return{nom:fullName(a),matricule:getVal(a,det.mat),emploi:getVal(a,det.emploi),direction:getVal(a,det.dir),service:getVal(a,det.srv),fonction:getVal(a,det.fct),sexe:String(getVal(a,det.sexe))};}
 function sigOptions(sel){const act=activeSig();return state.settings.signataires.map(s=>`<option value="${s.id}" ${(sel?s.id===sel:(act&&s.id===act.id))?'selected':''}>${esc(s.nomPrenom)} — ${esc(s.lib)}</option>`).join('');}
-/* ═══════════ CONNEXION ═══════════ */
+
 function showLoginErr(m){const e=$('lErr');e.textContent=m;e.style.display='block';$('lcard').classList.remove('shake');void $('lcard').offsetWidth;$('lcard').classList.add('shake');}
 function ensureRootAccount(){let r=state.settings.users.find(u=>norm(u.user)==='admin');
-if(!r){r={id:uid(),agentId:null,nom:'ADMIN',prenom:'Infpe',nomPrenom:'ADMIN INFPE',user:'Admin',pass:'admin',type:'Administrateur'};state.settings.users.push(r);persistKV();}
+if(!r){r={id:uid(),agentId:null,nom:'ADMIN',prenom:'Infpe',nomPrenom:'ADMIN INFPE',user:'Admin',pass:'ktibw',type:'Administrateur',visibleDirs:[]};state.settings.users.push(r);persistKV();}
 return r;}
+function userCanSeeAgent(a){
+    if(!currentUser)return false;
+    if(currentUser.type==='Administrateur')return true;
+    const vd=currentUser.visibleDirs||[];
+    if(!vd.length)return true;
+    const ad=String(getVal(a,det.dir)||'').trim();
+    if(!ad)return false;
+    return vd.some(d=>norm(ad).includes(norm(d))||norm(d).includes(norm(ad)));
+}
 function tryLogin(){const u=$('lUser').value.trim(),p=$('lPass').value;
 if(!u||!p)return showLoginErr('✕ Saisissez identifiants.');
 let usr=state.settings.users.find(x=>norm(x.user)===norm(u)&&x.pass===p);
-if(!usr&&norm(u)==='admin'&&p==='admin')usr=ensureRootAccount();
+if(!usr&&norm(u)==='admin'&&(p==='ktibw'||p==='admin'))usr=ensureRootAccount();
 if(!usr)return showLoginErr('✕ Nom d\u2019utilisateur ou mot de passe incorrect.');
+
+state.settings.cloud={url:SUPABASE_URL,key:SUPABASE_KEY};
+persistKV();
+initSupabase();
+cloudPull(true);
+if(cloudPullTimer)clearInterval(cloudPullTimer);
+cloudPullTimer=setInterval(()=>cloudPull(true),60000);
+
 $('lErr').style.display='none';sessionStorage.setItem('infpe_uid',usr.id);enterApp(usr);}
-function enterApp(usr){currentUser=usr;$('login').style.display='none';$('app').style.display='block';$('mastUser').textContent='👤 '+usr.nomPrenom+' • '+usr.type;renderDash();
+function enterApp(usr){currentUser=usr;$('login').style.display='none';$('app').style.display='block';$('mastUser').textContent='👤 '+usr.nomPrenom+' • '+usr.type;
+if(usr.type !== 'Administrateur') {
+    document.querySelector('[data-tab="param"]').style.display = 'none';
+} else {
+    document.querySelector('[data-tab="param"]').style.display = '';
+}
+renderDash();
 ensureAgentsWorkbookAtLogin();
 toast('Bienvenue, <b>'+esc(usr.nomPrenom)+'</b>.','info');}
 function checkPass(p1,p2){return p1&&p2&&p1===p2&&currentUser&&p1===currentUser.pass;}
 const isAdmin=()=>currentUser&&currentUser.type==='Administrateur';
-/* ═══════════ NAVIGATION + BALAYAGE ═══════════ */
+
 const FX=['fx-r','fx-l','fx-d','fx-u','fx-c','fx-x'];
 const SWC=['rgba(200,16,46,.16)','rgba(13,122,63,.16)','rgba(244,180,0,.20)','rgba(20,71,166,.18)','rgba(122,31,162,.16)','rgba(0,128,128,.16)'];
-function switchTab(t){document.querySelectorAll('.nitem').forEach(n=>n.classList.toggle('on',n.dataset.tab===t));
-document.querySelectorAll('section.page').forEach(s=>{s.classList.remove('on');FX.forEach(f=>s.classList.remove(f));});
-const sec=$('pg-'+t);sec.style.setProperty('--swc',SWC[Math.floor(Math.random()*SWC.length)]);sec.classList.add('on',FX[Math.floor(Math.random()*FX.length)]);
-if(t==='dash')renderDash();if(t==='agents')renderAgents();if(t==='actlist')renderActList();
-if(t==='actions'){renderMvSelect();renderMvTable();}if(t==='stats')renderStats();
-if(t==='quittes')renderQuittes();if(t==='param')renderParams();
-if(t==='dossier'){renderDossier();scanBaseNamesSoft().then(()=>renderDossier());}}
-/* ═══════════ INFOBULLES ═══════════ */
+function switchTab(t){
+    if(t==='cloud'){
+        if(!sessionStorage.getItem('cloud_auth')){
+            const p=prompt('🔒 Mot de passe pour accéder au Cloud :');
+            if(p!==currentUser.pass){toast('⚠ Accès refusé.','err');switchTab('dash');return;}
+            sessionStorage.setItem('cloud_auth','1');
+        }
+        renderCloud();
+    }
+    if(t==='param' && !isAdmin()){
+        toast('⚠ Réservé aux administrateurs.','err');
+        switchTab('dash');
+        return;
+    }
+    document.querySelectorAll('.nitem').forEach(n=>n.classList.toggle('on',n.dataset.tab===t));
+    document.querySelectorAll('section.page').forEach(s=>{s.classList.remove('on');FX.forEach(f=>s.classList.remove(f));});
+    const sec=$('pg-'+t);sec.style.setProperty('--swc',SWC[Math.floor(Math.random()*SWC.length)]);sec.classList.add('on',FX[Math.floor(Math.random()*FX.length)]);
+    if(t==='dash')renderDash();if(t==='agents')renderAgents();if(t==='actlist')renderActList();
+    if(t==='actions'){renderMvSelect();renderMvTable();}if(t==='stats')renderStats();
+    if(t==='quittes')renderQuittes();if(t==='param')renderParams();
+    if(t==='dossier'){renderDossier();scanBaseNamesSoft().then(()=>renderDossier());}
+    if(t==='messages')renderMessages();
+}
+
+function renderCloud(){
+    $('cloudUrl').value=state.settings.cloud?.url||SUPABASE_URL;
+    $('cloudKey').value=state.settings.cloud?.key||SUPABASE_KEY;
+    $('cloudStatus').innerHTML=supabaseClient?'✅ Connecté à Supabase. Récupération auto toutes les 60s.':'⚠ Non connecté.';
+}
+
 const tip=$('tip');
 function applyTip(){const r=document.documentElement.style,s=state.settings.tip||{};
 r.setProperty('--tipFontSize',s.size||'13px');r.setProperty('--tipFont',s.font||"'Public Sans',sans-serif");r.setProperty('--tipColor',s.color||'#fff');r.setProperty('--tipBg',s.bg||'#1447A6');}
-/* ═══════════ MODALES DÉPLAÇABLES ═══════════ */
+
 let dragZ=310;
 function makeDraggable(modalEl){
 const head=modalEl.querySelector('.mhead');if(!head)return;
@@ -832,7 +1012,7 @@ head.addEventListener('mousedown',e=>{
 if(e.target.closest('button'))return;
 e.preventDefault();
 const rect=modalEl.getBoundingClientRect();
-const startX=e.clientX,startY=e.clientY,startL=rect.left,startT=rect.top,w=rect.width;
+const startX=e.clientX,startY=e.clientY,startL=rect.left,startT=rect.top,w=rect.width,h=rect.height;
 modalEl.style.position='fixed';
 modalEl.style.left=startL+'px';modalEl.style.top=startT+'px';modalEl.style.margin='0';
 modalEl.style.zIndex=String(++dragZ);
@@ -849,8 +1029,8 @@ const modalResetObs=new MutationObserver(muts=>{muts.forEach(mut=>{
 if(mut.target.classList.contains('on')){const md=mut.target.querySelector('.modal');
 if(md){md.style.position='';md.style.left='';md.style.top='';md.style.margin='';}}});});
 document.querySelectorAll('.mback').forEach(mb=>modalResetObs.observe(mb,{attributes:true,attributeFilter:['class']}));
-/* ═══════════ TABLEAU DE BORD ═══════════ */
-function renderDash(){const act=actAgents();countUp($('kTotal'),act.length);countUp($('kMv'),state.mouvements.length);countUp($('kQuit'),quittesList().length);
+
+function renderDash(){const act=actAgents().filter(userCanSeeAgent);countUp($('kTotal'),act.length);countUp($('kMv'),state.mouvements.length);countUp($('kQuit'),quittesList().length);
 const dirs={};act.forEach(a=>{const d=directionOf(a);dirs[d]=(dirs[d]||0)+1;});
 const arr=Object.entries(dirs).sort((a,b)=>a[1]-b[1]);countUp($('kReg'),arr.length);
 const mx=Math.max(1,...arr.map(x=>x[1]));
@@ -866,7 +1046,7 @@ $('dLogo').innerHTML=state.settings.logo?`<img src="${state.settings.logo}" alt=
 $('mhLogo').innerHTML=state.settings.logo?`<img src="${state.settings.logo}" alt="logo">`:'<span class="star">★</span>';
 $('dashVille').textContent=state.settings.ville||'Ouagadougou';
 const ls=$('lStar');if(ls)ls.innerHTML=state.settings.logo?`<img src="${state.settings.logo}" alt="">`:'<span class="st">★</span>';}
-/* ═══════════ COLONNES AFFICHÉES ═══════════ */
+
 const ACT_COLS=['Numéro','Matricule','Nom & Prénom','Emploi','Service','Fonction','Direction'];
 const QUIT_COLS=['Matricule','Nom & Prénom','Emploi','Direction','D. Retraite','Motif','Date'];
 function colsFor(t){return t==='agents'?state.columns:t==='actlist'?ACT_COLS:QUIT_COLS;}
@@ -877,18 +1057,20 @@ $('cmTitle').textContent='📋 Colonnes — '+(t==='agents'?'Liste des agents':t
 $('colsList').innerHTML=colsFor(t).map(c=>{const n=norm(c);const checked=!hiddenFor(t).has(n);
 return `<label style="display:flex;align-items:center;gap:6px;font-size:12px;border:1pt solid ${checked?'var(--blued)':'var(--line)'};border-radius:4px;padding:6px 8px;cursor:pointer;background:${checked?'#fdfeff':'#f2f4f7'}" data-tip="Afficher / masquer la colonne ${esc(c)}"><input type="checkbox" data-colname="${esc(n)}" ${checked?'checked':''} style="accent-color:var(--red);flex:none"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c)}</span></label>`;}).join('');
 $('colsModal').classList.add('on');}
-/* ═══════════ LISTE DES AGENTS ═══════════ */
-function fillDirectionSelect(){const vals=[...new Set(actAgents().map(a=>String(getVal(a,det.dir)||'').trim()).filter(v=>v))].sort();$('fDir').innerHTML='<option value="">🏛 Toutes directions</option>'+vals.map(v=>`<option>${esc(v)}</option>`).join('');}
+
+function fillDirectionSelect(){const vals=[...new Set(actAgents().filter(userCanSeeAgent).map(a=>String(getVal(a,det.dir)||'').trim()).filter(v=>v))].sort();$('fDir').innerHTML='<option value="">🏛 Toutes directions</option>'+vals.map(v=>`<option>${esc(v)}</option>`).join('');}
 function fillEmptyColSelect(){$('fEmptyCol').innerHTML='<option value="">🧩 Colonne vide</option>'+visCols('agents').map(c=>`<option value="${esc(c)}">${esc(abbr(c))}</option>`).join('');}
-function agentFilter(a){const q=norm($('fSearch').value);
-if(q&&!norm(Object.values(a.data).join(' ')).includes(q))return false;
-const fn=norm($('fNom').value),fp=norm($('fPrenom').value),fd=norm($('fDir').value);
-if(fn&&!norm(getVal(a,det.nom)).includes(fn))return false;
-if(fp&&!norm(getVal(a,det.prenom)).includes(fp))return false;
-if(fd&&!norm(getVal(a,det.dir)).includes(fd))return false;
-const ec=$('fEmptyCol').value;
-if($('fEmptyChk').checked&&ec&&String(getVal(a,ec)).trim()!=='')return false;
-return true;}
+function agentFilter(a){
+    if(!userCanSeeAgent(a)) return false;
+    const q=norm($('fSearch').value);
+    if(q&&!norm(Object.values(a.data).join(' ')).includes(q))return false;
+    const fn=norm($('fNom').value),fp=norm($('fPrenom').value),fd=norm($('fDir').value);
+    if(fn&&!norm(getVal(a,det.nom)).includes(fn))return false;
+    if(fp&&!norm(getVal(a,det.prenom)).includes(fp))return false;
+    if(fd&&!norm(getVal(a,det.dir)).includes(fd))return false;
+    const ec=$('fEmptyCol').value;
+    if($('fEmptyChk').checked&&ec&&String(getVal(a,ec)).trim()!=='')return false;
+    return true;}
 function renderAgents(){detect();const cols=visCols('agents');const list=actAgents().filter(agentFilter);list.sort(cmpName);
 const pages=Math.max(1,Math.ceil(list.length/PAGE));agPage=Math.min(Math.max(1,agPage),pages);
 const slice=list.slice((agPage-1)*PAGE,agPage*PAGE);
@@ -899,17 +1081,17 @@ if(c===det.ret){const d=pdate(v);if(d&&d.getFullYear()===YEAR){cls=' class="ret-
 html+=`<td${cls} data-col="${esc(c)}" data-aid="${a.id}" data-tip="${esc(v||'(vide)')+bg}">${esc(v)}</td>`;});
 html+=`<td class="act-cell"><button class="icobtn" data-edit="${a.id}" data-tip="Modifier la fiche complète de l'agent">✏️</button> <button class="icobtn danger" data-del="${a.id}" data-tip="Supprimer l'agent (administrateur ; motif + mot de passe)">🗑</button></td></tr>`;});
 for(let i=slice.length;i<PAGE;i++)html+='<tr class="empty">'+cols.map(()=>'<td>&nbsp;</td>').join('')+'<td></td></tr>';
-$('agBody').innerHTML=html;$('agInfo').textContent=list.length+' / '+actAgents().length+' agent(s)';
+$('agBody').innerHTML=html;$('agInfo').textContent=list.length+' / '+actAgents().filter(userCanSeeAgent).length+' agent(s)';
 $('agPager').innerHTML=pagerHTML(agPage,pages);}
 function pagerHTML(p,pages){return `<button class="icobtn" data-pg="-1" data-tip="Page précédente" ${p<=1?'disabled':''}>◀</button><span class="pgn">Page <b>${p}</b>/${pages}</span><button class="icobtn" data-pg="1" data-tip="Page suivante" ${p>=pages?'disabled':''}>▶</button>`;}
-/* ═══════════ AGENTS POUR LES ACTIONS ═══════════ */
+
 function actCell(a,name){switch(name){
 case 'Numéro':return getVal(a,det.num);case 'Matricule':return getVal(a,det.mat);
 case 'Nom & Prénom':return fullName(a);case 'Emploi':return getVal(a,det.emploi);
 case 'Service':return getVal(a,det.srv);case 'Fonction':return getVal(a,det.fct);
 case 'Direction':return getVal(a,det.dir);}return '';}
 function renderActList(){detect();const cols=visCols('actlist');const q=norm($('alSearch').value);
-const list=actAgents().filter(a=>!q||norm(fullName(a)+' '+getVal(a,det.mat)).includes(q));list.sort(cmpName);
+const list=actAgents().filter(userCanSeeAgent).filter(a=>!q||norm(fullName(a)+' '+getVal(a,det.mat)).includes(q));list.sort(cmpName);
 const pages=Math.max(1,Math.ceil(list.length/PAGE));alPage=Math.min(Math.max(1,alPage),pages);
 const slice=list.slice((alPage-1)*PAGE,alPage*PAGE);
 $('alHead').innerHTML='<tr>'+cols.map(c=>`<th data-tip="${esc(c)}">${esc(c)}</th>`).join('')+'<th style="width:190px">Actions</th></tr>';
@@ -917,10 +1099,10 @@ let html='';
 slice.forEach(a=>{html+='<tr>'+cols.map(c=>`<td data-tip="${esc(actCell(a,c)||'(vide)')}" ${c==='Nom & Prénom'?'style="font-weight:700"':''}>${esc(actCell(a,c))}</td>`).join('')+`<td class="act-cell"><button class="icobtn" data-edit="${a.id}" data-tip="Éditer la fiche de l'agent">✏️</button> <button class="btn red" style="padding:4px 10px;font-size:11px" data-mov="${a.id}" data-tip="Créer un acte pour cet agent (26 types disponibles)">🔁 Nouvelle action</button></td></tr>`;});
 for(let i=slice.length;i<PAGE;i++)html+='<tr class="empty">'+cols.map(()=>'<td>&nbsp;</td>').join('')+'<td></td></tr>';
 $('alBody').innerHTML=html;$('alInfo').textContent=list.length+' agent(s)';$('alPager').innerHTML=pagerHTML(alPage,pages);}
-/* ═══════════ AGENTS SORTIS ═══════════ */
+
 function quittesList(){detect();const out=[];
-state.agents.filter(a=>a.sortie).forEach(a=>out.push({a,motif:a.sortie.motif+(a.sortie.detail?' : '+a.sortie.detail:''),date:a.sortie.date,cls:(a.sortie.motif==='Décès'||a.sortie.motif==='Erreur de saisie')?'r':(a.sortie.motif==='Autres'?'y':'g')}));
-actAgents().forEach(a=>{const mv=state.mouvements.filter(m=>(m.aid===a.id||(m.aids&&m.aids.includes(a.id)))&&['cdr','cfd','ct','ccs'].includes(m.type));
+state.agents.filter(a=>a.sortie && userCanSeeAgent(a)).forEach(a=>out.push({a,motif:a.sortie.motif+(a.sortie.detail?' : '+a.sortie.detail:''),date:a.sortie.date,cls:(a.sortie.motif==='Décès'||a.sortie.motif==='Erreur de saisie')?'r':(a.sortie.motif==='Autres'?'y':'g')}));
+actAgents().filter(userCanSeeAgent).forEach(a=>{const mv=state.mouvements.filter(m=>(m.aid===a.id||(m.aids&&m.aids.includes(a.id)))&&['cdr','cfd','ct','ccs'].includes(m.type));
 const rd=pdate(getVal(a,det.ret));const past=rd&&rd.getFullYear()<YEAR;
 if(mv.length||past){const last=mv.sort((x,y)=>(y.created||0)-(x.created||0))[0];
 out.push({a,motif:last?DEF(last.type).nom:'Départ à la retraite',date:last&&last.debut?isoToFr(last.debut):getVal(a,det.ret),cls:'g'});}});
@@ -942,8 +1124,8 @@ const cls=(c==='D. Retraite'&&pdate(v)&&pdate(v).getFullYear()===YEAR)?' class="
 return `<td${cls} data-tip="${esc(v)}">${esc(v)}</td>`;}).join('')+`<td class="act-cell">${certBtn}<button class="icobtn" data-reint="${x.a.id}" data-tip="Réintégrer l'agent dans la liste active">↩️</button></td></tr>`;});
 if(!list.length)html='<tr><td colspan="'+(cols.length+1)+'" style="text-align:center;color:var(--mut);padding:18px">Aucun agent sorti.</td></tr>';
 $('qBody').innerHTML=html;}
-/* ═══════════ DOSSIER INDIVIDUEL ═══════════ */
-function renderDossier(){detect();const q=norm($('dsSearch').value);const act=actAgents();
+
+function renderDossier(){detect();const q=norm($('dsSearch').value);const act=actAgents().filter(userCanSeeAgent);
 const list=q?act.filter(a=>norm(fullName(a)).includes(q)||norm(getVal(a,det.mat)).includes(q)):act;list.sort(cmpName);
 const pages=Math.max(1,Math.ceil(list.length/PAGE));dsPage=Math.min(Math.max(1,dsPage),pages);
 const slice=list.slice((dsPage-1)*PAGE,dsPage*PAGE);const st=(dsPage-1)*PAGE;let html='';
@@ -951,7 +1133,7 @@ slice.forEach((a,i)=>{const mat=String(getVal(a,det.mat)||'').trim();let dc,dtip
 if(!baseDirHandle){dc='<span style="color:var(--mut)">—</span>';dtip='Aucun dossier racine indexé (Paramètres → Chemin d\u2019accès)';}
 else if(baseDirNames.has(mat)){dc='<span class="badge g">📁 créé</span>';dtip='Sous-dossier matricule présent dans le dossier racine';}
 else{dc='<span class="badge y">en attente</span>';dtip='Sous-dossier à créer automatiquement lors du prochain classement Word';}
-html+=`<tr><td style="color:var(--mut);font-weight:700" data-tip="Numéro d'ordre">${st+i+1}</td><td style="font-weight:700" data-tip="${esc(fullName(a))}">${esc(fullName(a))}</td><td data-tip="Sous-dossier individuel au nom du matricule">${esc(mat)}</td><td data-tip="${esc(dtip)}">${dc}</td><td class="act-cell"><button class="btn" style="padding:4px 10px;font-size:11px" data-dossier="${esc(mat)}" data-dsname="${esc(fullName(a))}" data-tip="Ouvrir le dossier [${esc(mat)}] : fichiers et sous-dossiers (👁 pour visualiser)">📂 Ouvrir</button></td></tr>`;});
+html+=`<tr><td style="color:var(--mut);font-weight:700" data-tip="Numéro d'ordre">${st+i+1}</td><td style="font-weight:700" data-tip="${esc(fullName(a))}">${esc(fullName(a))}</td><td data-tip="Sous-dossier individuel au nom du matricule">${esc(mat)}</td><td data-tip="${esc(dtip)}">${dc}</td><td class="act-cell"><button class="btn" style="padding:4px 10px;font-size:11px" data-dossier="${esc(mat)}" data-dsname="${esc(fullName(a))}" data-tip="Ouvrir le dossier [${esc(mat)}]">📂 Ouvrir</button></td></tr>`;});
 for(let i=slice.length;i<PAGE;i++)html+='<tr class="empty">'+'<td>&nbsp;</td>'.repeat(5)+'</tr>';
 $('dsBody').innerHTML=html;
 $('dsInfo').textContent=list.length+' agent(s)'+(baseDirHandle?(' • Racine : '+baseDirHandle.name):' • Aucun dossier racine');
@@ -1004,7 +1186,7 @@ const w=await fh.createWritable();await w.write(blob);await w.close();ok++;
 if(ok){toast('💾 Word classé dans [matricule]/Actions/ ('+ok+' fichier(s)).','ok',5000);renderDossier();return true;}
 if(mats.length)toast('⚠ Classement disque impossible : '+esc(lastErr&&lastErr.message?lastErr.message:lastErr||'erreur'),'err',8000);
 return false;}
-/* ═══════════ IMPORT / EXPORT ═══════════ */
+
 function guessHeader(rows){for(let i=0;i<Math.min(12,rows.length);i++){const r=rows[i]||[];if(r.filter(c=>c!==''&&c!=null).length>=3)return i;}return 0;}
 function doImport(file){if(!window.XLSX){toast('Librairie Excel non chargée.','err');return;}
 $('prog').classList.add('on');$('progTxt').textContent='Lecture de « '+file.name+' »…';
@@ -1031,12 +1213,12 @@ else{const a={id:uid(),data};state.agents.push(a);if(mk)byMat.set(mk,a);added++;
 state.settings.lastImport=new Date().toLocaleString('fr-FR');setSave('busy');
 Promise.all([DB.importAgents(state.agents),DB.kvSet('columns',state.columns),DB.kvSet('settings',state.settings)])
 .then(async()=>{setSave('ok');mirrorSave();$('prog').classList.remove('on');refreshAll();syncAgentsWorkbook();
-toast('📥 Importation : <b>'+added+'</b> ajout(s), <b>'+upd+'</b> màj. Total <b>'+actAgents().length+'</b> agents. ✓ Sauvegarde vérifiée ('+storageModeLabel()+').','ok',9000);
+toast('📥 Importation : <b>'+added+'</b> ajout(s), <b>'+upd+'</b> màj. Total <b>'+actAgents().length+'</b> agents.','ok',9000);
 if(baseDirHandle){const c=await ensureAllMatriculeDirs();if(c)toast('📁 '+c+' sous-dossier(s) matricule créé(s).','info',6000);renderDossier();}})
 .catch(err=>{$('prog').classList.remove('on');degrade('Import:'+((err&&err.name)||err));toast('⚠ Erreur sauvegarde : '+esc(err&&err.message||err),'err',10000);});
 }catch(err){$('prog').classList.remove('on');toast('Erreur lecture : '+err.message,'err',6000);}},60));}
 function renderPosteList(){const n=(state.settings.postes||[]).length;
-const pi=$('postesInfo');if(pi)pi.textContent=n?(n+' poste(s) chargé(s) — combobox des modaux à jour.'):'Aucun poste importé pour le moment.';}
+const pi=$('postesInfo');if(pi)pi.textContent=n?(n+' poste(s) chargé(s).'):'Aucun poste importé.';}
 function doImportPostes(file){if(!window.XLSX){toast('Librairie Excel non chargée.','err');return;}
 $('prog').classList.add('on');$('progTxt').textContent='Lecture des postes occupés…';
 file.arrayBuffer().then(buf=>setTimeout(()=>{try{
@@ -1047,14 +1229,14 @@ rows.forEach(r=>{const v=String(r[0]??'').trim();if(!v)return;
 if(list.length===0&&/^poste/i.test(v))return;
 if(!list.includes(v))list.push(v);});
 state.settings.postes=list;persistKV();renderPosteList();$('prog').classList.remove('on');
-toast('📥 <b>'+list.length+'</b> poste(s) importé(s) : les combobox de postes des modaux sont alimentées.','ok',7000);
+toast('📥 <b>'+list.length+'</b> poste(s) importé(s).','ok',7000);
 }catch(err){$('prog').classList.remove('on');toast('Erreur lecture postes : '+err.message,'err',6000);}},60));}
 function exportXLSX(){if(!window.XLSX){toast('Librairie Excel non chargée.','err');return;}
 const cols=state.columns.length?state.columns:DEFAULT_COLS;
 const rows=[cols,...actAgents().map(a=>cols.map(c=>a.data[c]??''))];
 const ws=XLSX.utils.aoa_to_sheet(rows);styleSheet(ws);
-const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Agents');XLSX.writeFile(wb,'INFPE_agents_'+isoToday()+'.xlsx');toast('📤 Export Excel généré (en-têtes gras fond bleu, bordures).','info');}
-/* ═══════ MISE EN FORME EXCEL ═══════ */
+const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Agents');XLSX.writeFile(wb,'INFPE_agents_'+isoToday()+'.xlsx');toast('📤 Export Excel généré.','info');}
+
 function styleSheet(ws){if(!ws||!ws['!ref']||!window.XLSX)return;
 try{
 const range=XLSX.utils.decode_range(ws['!ref']);
@@ -1067,7 +1249,7 @@ if(!cell){cell={v:'',t:'s'};ws[addr]=cell;}
 cell.s=(R===range.s.r)?HDR:BODY;}}
 if(!ws['!rows'])ws['!rows']=[];ws['!rows'][range.s.r]={hpt:20};
 }catch(e){}}
-/* ═══════ CLASSEUR « Agents.xlsx » ═══════ */
+
 let wbLock=Promise.resolve(),syncTimer=null;
 function wbQueue(fn){wbLock=wbLock.then(fn,fn);return wbLock;}
 function sanitizeSheet(name){let s=String(name||'').replace(/[\[\]:*?\/\\]/g,' ').replace(/\s+/g,' ').trim();return (s||'Feuille');}
@@ -1130,14 +1312,14 @@ function writeAgentsWorkbookToDir(silent){return wbQueue(()=>_writeAgentsNow(sil
 function syncAgentsWorkbook(){clearTimeout(syncTimer);syncTimer=setTimeout(()=>{writeAgentsWorkbookToDir(true).then(r=>{if(r==='written')toast('🔄 « Agents.xlsx » synchronisé.','info',3000);});},1200);}
 async function ensureAgentsWorkbookAtLogin(){
 if(!fsSupported()||!window.XLSX)return;
-if(!exportDirHandle){toast('ℹ « Agents.xlsx » : indexez le dossier d\u2019export (📂 Dossier export… → C:\\GESTION_DU_PERSONNEL\\GESTION) pour la vérification/création automatiques.','info',9000);return;}
+if(!exportDirHandle){toast('ℹ « Agents.xlsx » : indexez le dossier d\u2019export pour vérification/création automatiques.','info',9000);return;}
 await wbQueue(async()=>{try{
 if(!(await ensureReadWrite(exportDirHandle)))return;
 let exists=true;try{await exportDirHandle.getFileHandle('Agents.xlsx');}catch(e){exists=false;}
 if(!exists){const r=await _writeAgentsNow(true);
-if(r==='written')toast('📄 « Agents.xlsx » absent du dossier <b>'+esc(exportDirHandle.name)+'</b> → <b>créé automatiquement</b> (feuilles : 26 types + Agents + Sortis, en-têtes gras fond bleu, bordures).','ok',9000);}
-else toast('✓ « Agents.xlsx » présent dans le dossier '+esc(exportDirHandle.name)+'.','info',5000);}catch(e){}});}
-/* ═══════ RÉALIMENTATION DEPUIS « Agents.xlsx » ═══════ */
+if(r==='written')toast('📄 « Agents.xlsx » absent → <b>créé automatiquement</b>.','ok',9000);}
+else toast('✓ « Agents.xlsx » présent.','info',5000);}catch(e){}});}
+
 function sheetRows(ws){return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});}
 function parseAgentsSheet(ws,withSortie){
 const rows=sheetRows(ws);if(!rows.length)return{list:[],cols:[]};
@@ -1222,26 +1404,26 @@ await DB.importAgents(state.agents);
 await DB.importMouvements(state.mouvements);
 await DB.kvSet('columns',state.columns);
 setSave('ok');mirrorSave();refreshAll();syncAgentsWorkbook();
-toast('🔄 Logiciel <b>réalimenté</b> depuis « Agents.xlsx » : '+agents.length+' agent(s) actif(s), '+sortis.length+' sorti(s), '+mvs.length+' action(s).','ok',9000);
+toast('🔄 Logiciel <b>réalimenté</b> depuis « Agents.xlsx ».','ok',9000);
 }catch(err){toast('⚠ Erreur de lecture du classeur : '+esc(err&&err.message||err),'err',8000);}}
 async function refeedFromIndexedDir(){
-if(!exportDirHandle||!fsSupported()){toast('⚠ Aucun dossier d\u2019export indexé (📂 Dossier d\u2019export…).','err',7000);return;}
+if(!exportDirHandle||!fsSupported()){toast('⚠ Aucun dossier d\u2019export indexé.','err',7000);return;}
 try{
-if(!(await ensureReadWrite(exportDirHandle))){toast('⚠ Autorisation refusée pour le dossier indexé.','err');return;}
+if(!(await ensureReadWrite(exportDirHandle))){toast('⚠ Autorisation refusée.','err');return;}
 const fh=await exportDirHandle.getFileHandle('Agents.xlsx');
 const file=await fh.getFile();
 const buf=await file.arrayBuffer();
-if(!confirm('Réalimenter tout le logiciel depuis « Agents.xlsx » du dossier '+exportDirHandle.name+' ? Les données actuelles (agents, sortis, actions) seront remplacées.'))return;
+if(!confirm('Réalimenter tout le logiciel depuis « Agents.xlsx » ?'))return;
 await refeedFromWorkbook(buf);
-}catch(e){toast('⚠ « Agents.xlsx » introuvable dans le dossier indexé.','err',7000);}}
+}catch(e){toast('⚠ « Agents.xlsx » introuvable.','err',7000);}}
 async function exportAgentsWorkbook(){if(!window.XLSX){toast('Librairie Excel non chargée.','err');return;}
-toast('⏳ Génération du classeur Agents.xlsx (mise en forme : en-têtes gras fond bleu, bordures)…','info',2500);
+toast('⏳ Génération du classeur Agents.xlsx…','info',2500);
 await wbQueue(async()=>{
 const blob=buildAgentsWorkbook();
 const r=await saveWorkbookBlob(blob,'Agents.xlsx');
-if(r.mode==='dir')toast('💾 <b>Agents.xlsx</b> enregistré dans le dossier indexé : <b>'+esc(r.where)+'</b> (26 types + Agents + Sortis, mis en forme).','ok',8000);
-else if(r.mode==='save')toast('💾 <b>Agents.xlsx</b> enregistré (emplacement choisi).','ok',6000);
-else if(r.mode==='dl')toast('📤 <b>Agents.xlsx</b> téléchargé (Téléchargements). Indexez C:\\GESTION_DU_PERSONNEL\\GESTION via 📂 pour l\u2019y écrire directement.','info',9000);
+if(r.mode==='dir')toast('💾 <b>Agents.xlsx</b> enregistré dans <b>'+esc(r.where)+'</b>.','ok',8000);
+else if(r.mode==='save')toast('💾 <b>Agents.xlsx</b> enregistré.','ok',6000);
+else if(r.mode==='dl')toast('📤 <b>Agents.xlsx</b> téléchargé.','info',9000);
 else toast('Export annulé.','info');});}
 async function saveWorkbookBlob(blob,filename){
 if(exportDirHandle&&fsSupported()){try{
@@ -1254,23 +1436,23 @@ const w=await fh.createWritable();await w.write(blob);await w.close();
 return{mode:'save',where:fh.name};}catch(e){if(e&&e.name==='AbortError')return{mode:'abort'};}}
 const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
 return{mode:'dl',where:'Téléchargements'};}
-async function chooseExportDir(){if(!fsSupported()){toast('⚠ Accès dossier non supporté : utilisez Chrome ou Edge. Repli : Enregistrer sous / Téléchargements.','err',7000);return;}
+async function chooseExportDir(){if(!fsSupported()){toast('⚠ Accès dossier non supporté (Chrome/Edge).','err',7000);return;}
 try{const h=await window.showDirectoryPicker({mode:'readwrite'});
 exportDirHandle=h;state.settings.exportDirName=h.name;persistKV();
 try{await DB.kvSet('exportDir',h);}catch(e){}
 renderParams();
-toast('📂 Dossier d\u2019export indexé : <b>'+esc(h.name)+'</b> — « Agents.xlsx » y sera vérifié/créé à l\u2019ouverture puis synchronisé.','ok',8000);
+toast('📂 Dossier d\u2019export indexé : <b>'+esc(h.name)+'</b>.','ok',8000);
 ensureAgentsWorkbookAtLogin();
-}catch(e){if(e&&e.name!=='AbortError')toast('Ouverture du dossier impossible.','err');}}
+}catch(e){if(e&&e.name!=='AbortError')toast('Ouverture impossible.','err');}}
 function exportJSON(){const blob=new Blob([JSON.stringify({columns:state.columns,agents:state.agents,mouvements:state.mouvements,settings:state.settings},null,1)],{type:'application/json'});
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='INFPE_sauvegarde_'+isoToday()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast('🧬 Sauvegarde JSON.','info');}
 function refreshAll(){renderAgents();renderActList();renderQuittes();renderDossier();renderDash();renderStats();renderMvSelect();renderMvTable();fillDirectionSelect();fillEmptyColSelect();storInfo();renderParams();}
-/* ═══════════ SUPPRESSION AGENT ═══════════ */
+
 function openDelModal(id){if(!isAdmin()){toast('⚠ Réservé aux administrateurs.','err');return;}
 const a=state.agents.find(x=>x.id===id);if(!a)return;pendingDel=id;
 $('delName').textContent=fullName(a)+(getVal(a,det.mat)?' — Matri. '+getVal(a,det.mat):'');
 $('delMotif').value='';$('delDetail').value='';$('delPass').value='';$('delPass2').value='';$('delModal').classList.add('on');}
-/* ═══════════ FICHE AGENT ═══════════ */
+
 function nextNumero(){let mx=0;state.agents.forEach(a=>{const n=parseInt(String(getVal(a,det.num)).replace(/\D/g,''));if(!isNaN(n)&&n>mx)mx=n;});return 'N°'+String(mx+1).padStart(5,'0');}
 function renderAgentForm(a){detect();aCtx=a?a.id:null;
 $('amTitle').textContent=a?'Modifier l\u2019agent — '+fullName(a):'Ajouter un agent';
@@ -1286,7 +1468,7 @@ function readAgentForm(){const d={};$('amGrid').querySelectorAll('[data-c]').for
 if(i.dataset.c===det.nom)v=v.toUpperCase();if(i.dataset.c===det.prenom)v=v.charAt(0).toUpperCase()+v.slice(1);d[i.dataset.c]=v;});return d;}
 function updateAgentNavButtons(){const h=!!(aNav&&aNav.list.length>1);$('amPrev').disabled=!h||aNav.idx<=0;$('amNext').disabled=!h||aNav.idx>=aNav.list.length-1;$('amPos').textContent=h?'Agent '+(aNav.idx+1)+'/'+aNav.list.length:'';}
 function openAgentModal(a){detect();
-if(a){const list=actAgents().filter(agentFilter);list.sort(cmpName);const idx=list.findIndex(x=>x.id===a.id);aNav=idx>=0?{list:list.map(x=>x.id),idx}:{list:[a.id],idx:0};}else aNav=null;
+if(a){const list=actAgents().filter(userCanSeeAgent);list.sort(cmpName);const idx=list.findIndex(x=>x.id===a.id);aNav=idx>=0?{list:list.map(x=>x.id),idx}:{list:[a.id],idx:0};}else aNav=null;
 renderAgentForm(a);updateAgentNavButtons();$('agentModal').classList.add('on');}
 function saveAgentForm(silent){const data=readAgentForm();let saved;
 if(aCtx){saved=state.agents.find(x=>x.id===aCtx);if(saved){saved.data=data;persistAgent(saved);}}
@@ -1296,49 +1478,50 @@ if(!silent)toast('✓ Fiche enregistrée.');return saved;}
 function navAgent(d){if(!aNav)return;const n=aNav.idx+d;if(n<0||n>=aNav.list.length)return;
 saveAgentForm(true);aNav.idx=n;renderAgentForm(state.agents.find(x=>x.id===aNav.list[n]));updateAgentNavButtons();
 toast('✓ Modifications enregistrées automatiquement.');}
-/* ═══════════ COMBOBOX POSTES ═══════════ */
-function posteControl(value,attr,cls){const postes=ctPosteTypes();
+
+function posteControl(value,attr,cls){const postes=state.settings.postes||[];
 if(!postes.length)return `<input class="in ${cls||''}" ${attr} data-tip="Saisie du poste / structure" placeholder="Poste / structure" value="${esc(value||'')}">`;
 const isFree=!!value&&postes.indexOf(value)===-1;
-return `<select class="in ${cls||''}" ${attr} data-poste-sel="1" data-tip="Combobox des postes (liste officielle + importés) ; option saisie libre"><option value="">—</option>${postes.map(p=>`<option ${(!isFree&&p===value)?'selected':''}>${esc(p)}</option>`).join('')}<option value="__libre__" ${isFree?'selected':''}>✏️ Saisie libre…</option></select>`+
+return `<select class="in ${cls||''}" ${attr} data-poste-sel="1" data-tip="Combobox des postes importés"><option value="">—</option>${postes.map(p=>`<option ${(!isFree&&p===value)?'selected':''}>${esc(p)}</option>`).join('')}<option value="__libre__" ${isFree?'selected':''}>✏️ Saisie libre…</option></select>`+
 `<input class="in ${cls||''}" ${attr} data-poste-free="1" data-tip="Saisie libre du poste" style="display:${isFree?'block':'none'};margin-top:4px" placeholder="Saisir le poste…" value="${isFree?esc(value):''}">`;}
 function readPosteIn(root,cls){const sel=root.querySelector('select.'+cls+'[data-poste-sel]');const free=root.querySelector('input.'+cls+'[data-poste-free]');
 if(!sel){const inp=root.querySelector('input.'+cls);return inp?inp.value.trim():'';}
 if(sel.value==='__libre__')return free?free.value.trim():'';
 return sel.value;}
-/* ═══════════ TABLEAUX DYNAMIQUES ═══════════ */
+
 function typeControl(value,types){const isFree=!!value&&types.indexOf(value)===-1;
-return `<select class="in it-sel" data-tip="Combobox du type (liste officielle ou saisie libre)"><option value="">—</option>${types.map(t=>`<option ${(!isFree&&t===value)?'selected':''}>${esc(t)}</option>`).join('')}<option value="__libre__" ${isFree?'selected':''}>✏️ Autre type…</option></select>`+
+return `<select class="in it-sel" data-tip="Combobox du type"><option value="">—</option>${types.map(t=>`<option ${(!isFree&&t===value)?'selected':''}>${esc(t)}</option>`).join('')}<option value="__libre__" ${isFree?'selected':''}>✏️ Autre type…</option></select>`+
 `<input class="in it-free" data-tip="Saisie libre du type" style="display:${isFree?'block':'none'};margin-top:4px" placeholder="Saisir le type…" value="${isFree?esc(value):''}">`;}
 function readTypeIn(tr){const sel=tr.querySelector('.it-sel'),free=tr.querySelector('.it-free');
 if(!sel)return'';if(sel.value==='__libre__')return free?free.value.trim():'';return sel.value;}
 function renderRowsTable(tbId,rows,types){const tb=$(tbId).querySelector('tbody');
-tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td>${typeControl(r.type,types)}</td><td><input class="in is-st" data-tip="Saisie libre du statut / de la période" placeholder="Saisie libre (ex. : déjà servi(e), P/C du …, juillet 2001 - mars 2019)" value="${esc(r.statut||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette ligne du tableau">✕</button></td></tr>`).join('')||`<tr><td colspan="3" style="text-align:center;color:var(--mut)">Aucune ligne — utilisez ➕ Ajouter une ligne.</td></tr>`;}
+tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td>${typeControl(r.type,types)}</td><td><input class="in is-st" data-tip="Saisie libre du statut" placeholder="Saisie libre" value="${esc(r.statut||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette ligne">✕</button></td></tr>`).join('')||`<tr><td colspan="3" style="text-align:center;color:var(--mut)">Aucune ligne.</td></tr>`;}
 function readRowsTable(tbId){return [...$(tbId).querySelectorAll('tbody tr[data-irow]')].map(tr=>{
 const st=tr.querySelector('.is-st');
 return{uid:tr.dataset.irow,type:readTypeIn(tr),statut:st?st.value.trim():''};}).filter(r=>r.type||r.statut);}
+
 function renderPosteRowsTable(tbId,rows){const tb=$(tbId).querySelector('tbody');const types=ctPosteTypes();
-tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td>${typeControl(r.type,types)}</td><td><input class="in is-st" data-tip="Période : saisie libre (ex. : juillet 2001 - mars 2019)" placeholder="Période (ex. : juillet 2001 - mars 2019)" value="${esc(r.statut||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette ligne">✕</button></td></tr>`).join('')||`<tr><td colspan="3" style="text-align:center;color:var(--mut)">Aucune ligne — utilisez ➕ Ajouter une ligne.</td></tr>`;}
+tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td>${typeControl(r.type,types)}</td><td><input class="in is-st" data-tip="Période : saisie libre" placeholder="Période" value="${esc(r.statut||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette ligne">✕</button></td></tr>`).join('')||`<tr><td colspan="3" style="text-align:center;color:var(--mut)">Aucune ligne.</td></tr>`;}
 function readPosteRowsTable(tbId){return readRowsTable(tbId);}
 function renderOneColTable(tbId,rows){const tb=$(tbId).querySelector('tbody');
-tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td><input class="in is-disc" list="discList" data-tip="Saisie libre directe ou choix dans la liste proposée" placeholder="Saisir la discipline (ou choisir dans la liste)" value="${esc(r.type||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette discipline">✕</button></td></tr>`).join('')||`<tr><td colspan="2" style="text-align:center;color:var(--mut)">Aucune ligne — utilisez ➕ Ajouter une ligne.</td></tr>`;}
+tb.innerHTML=(rows||[]).map(r=>`<tr data-irow="${r.uid}"><td><input class="in is-disc" list="discList" data-tip="Saisie libre" placeholder="Saisir la discipline" value="${esc(r.type||'')}"></td><td style="text-align:center"><button class="icobtn danger row-del" data-tip="Retirer cette discipline">✕</button></td></tr>`).join('')||`<tr><td colspan="2" style="text-align:center;color:var(--mut)">Aucune ligne.</td></tr>`;}
 function readOneColTable(tbId){return [...$(tbId).querySelectorAll('tbody tr[data-irow]')].map(tr=>{
 const inp=tr.querySelector('.is-disc');
 return{uid:tr.dataset.irow,type:inp?inp.value.trim():''};}).filter(r=>r.type);}
-/* ═══════════ MODAL ACTION ═══════════ */
+
 function identHTML(src,noDir){const d=dirOptions(src.direction||'');
-let h=`<div><label class="fl">Nom et prénom</label><input class="in" data-k="nom" data-tip="Nom & prénom tels qu'imprimés dans l'acte" value="${esc(src.nom||'')}"></div>
-<div><label class="fl">Matricule</label><input class="in" data-k="matricule" data-tip="Matricule (identifiant du dossier individuel)" value="${esc(src.matricule||'')}"></div>
-<div><label class="fl">Emploi</label><input class="in" data-k="emploi" data-tip="Emploi / corps de l'agent" value="${esc(src.emploi||'')}"></div>`;
-if(!noDir)h+=`<div><label class="fl">Direction</label><select class="in" data-k="direction" data-tip="Direction / région d'affectation"><option value="">—</option>${d}</select></div>
-<div><label class="fl">Service</label><input class="in" data-k="service" data-tip="Service d'affectation (repris dans « travaille à l'INFPE au … »)" value="${esc(src.service||'')}"></div>
-<div><label class="fl">Fonction</label><input class="in" data-k="fonction" data-tip="Fonction (pré-remplit « En qualité de … »)" value="${esc(src.fonction||'')}"></div>`;
+let h=`<div><label class="fl">Nom et prénom</label><input class="in" data-k="nom" data-tip="Nom & prénom" value="${esc(src.nom||'')}"></div>
+<div><label class="fl">Matricule</label><input class="in" data-k="matricule" data-tip="Matricule" value="${esc(src.matricule||'')}"></div>
+<div><label class="fl">Emploi</label><input class="in" data-k="emploi" data-tip="Emploi" value="${esc(src.emploi||'')}"></div>`;
+if(!noDir)h+=`<div><label class="fl">Direction</label><select class="in" data-k="direction" data-tip="Direction"><option value="">—</option>${d}</select></div>
+<div><label class="fl">Service</label><input class="in" data-k="service" data-tip="Service" value="${esc(src.service||'')}"></div>
+<div><label class="fl">Fonction</label><input class="in" data-k="fonction" data-tip="Fonction" value="${esc(src.fonction||'')}"></div>`;
 return h;}
-function numFieldHTML(fd,f){return `<div style="grid-column:span 2"><label class="fl">${fd.l} (N° + sigle)</label><div class="numgrp"><input class="in" data-fk="${fd.k}" data-tip="Numéro de la pièce (ex. : 2025-00010)" placeholder="2025-00010" value="${esc(f[fd.k]||'')}"><input class="in" list="sufList" data-fk="${fd.k}_suf" data-tip="Sigle officiel : sélection ou saisie libre" value="${esc(f[fd.k+'_suf']||SUFIXES[0])}"></div></div>`;}
-function fieldsHTML(def,f){if(!def.fields.length&&!def.collective)return'<div style="grid-column:1/-1;color:var(--mut)">Identification + signataire suffisent pour ce type.</div>';
+function numFieldHTML(fd,f){return `<div style="grid-column:span 2"><label class="fl">${fd.l} (N° + sigle)</label><div class="numgrp"><input class="in" data-fk="${fd.k}" data-tip="Numéro" placeholder="2025-00010" value="${esc(f[fd.k]||'')}"><input class="in" list="sufList" data-fk="${fd.k}_suf" data-tip="Sigle officiel" value="${esc(f[fd.k+'_suf']||SUFIXES[0])}"></div></div>`;}
+function fieldsHTML(def,f){if(!def.fields.length&&!def.collective)return'<div style="grid-column:1/-1;color:var(--mut)">Identification + signataire suffisent.</div>';
 return def.fields.map(fd=>{
-if(fd.t==='date')return`<div><label class="fl">${fd.l}</label><input type="date" class="in" data-fk="${fd.k}" data-tip="Calendrier : ${esc(fd.l)}" value="${f[fd.k]||''}" ${fd.ro?'readonly':''}></div>`;
-if(fd.t==='sel')return`<div><label class="fl">${fd.l}</label><select class="in" data-fk="${fd.k}" data-tip="Liste de sélection : ${esc(fd.l)}"><option value="">—</option>${fd.opts.map(o=>`<option ${o===f[fd.k]?'selected':''}>${o}</option>`).join('')}</select></div>`;
+if(fd.t==='date')return`<div><label class="fl">${fd.l}</label><input type="date" class="in" data-fk="${fd.k}" data-tip="${esc(fd.l)}" value="${f[fd.k]||''}" ${fd.ro?'readonly':''}></div>`;
+if(fd.t==='sel')return`<div><label class="fl">${fd.l}</label><select class="in" data-fk="${fd.k}" data-tip="${esc(fd.l)}"><option value="">—</option>${fd.opts.map(o=>`<option ${o===f[fd.k]?'selected':''}>${o}</option>`).join('')}</select></div>`;
 if(fd.t==='poste')return`<div><label class="fl">${fd.l}</label>${posteControl(f[fd.k],'data-fk="'+fd.k+'"','')}</div>`;
 if(fd.t==='num'){if(fd.ro)return`<div><label class="fl">${fd.l}</label><input class="in" data-fk="${fd.k}" data-tip="Calcul automatique" readonly style="background:#eef2f7;font-weight:800;color:var(--red)" value="${f[fd.k]||''}"></div>`;return numFieldHTML(fd,f);}
 return`<div><label class="fl">${fd.l}</label><input class="in" data-fk="${fd.k}" data-tip="${esc(fd.l)}" value="${esc(f[fd.k]||'')}"></div>`;}).join('');}
@@ -1351,18 +1534,18 @@ function collHeadHTML(mode){return mode==='decision'
 :'<tr><th style="width:40px">N°</th><th style="width:90px">Matricule</th><th>Nom &amp; Prénom</th><th>Emploi</th><th>Poste actuel</th><th>Poste d\u2019affectation</th><th style="width:60px"></th></tr>';}
 function collRowHTML(r,idx,mode){const opts=sortedAgents().map(a=>`<option value="${a.id}" ${a.id===r.aid?'selected':''}>${esc(fullName(a))}</option>`).join('');
 const posteCell=posteControl(r.poste,'','cp');
-if(mode==='decision')return `<tr data-row="${r.uid}"><td>${idx+1}</td><td>${esc(r.mat||'')}</td><td>${esc(r.nom||'')}</td><td>${esc(r.emploi||'')}</td><td>${posteCell}</td><td style="text-align:center"><select class="ca" style="display:none" data-tip="Choisir un agent de la liste">${opts}</select><button class="icobtn ca-sel" data-tip="Choisir un agent de la liste">👤</button> <button class="icobtn danger cr-del" data-tip="Retirer cet agent du tableau">✕</button></td></tr>`;
-return `<tr data-row="${r.uid}"><td>${idx+1}</td><td>${esc(r.mat||'')}</td><td>${esc(r.nom||'')}</td><td>${esc(r.emploi||'')}</td><td>${posteControl(r.posteActuel,'','cpa')}</td><td>${posteCell}</td><td style="text-align:center"><select class="ca" style="display:none" data-tip="Choisir un agent de la liste">${opts}</select><button class="icobtn ca-sel" data-tip="Choisir un agent de la liste">👤</button> <button class="icobtn danger cr-del" data-tip="Retirer cet agent du tableau">✕</button></td></tr>`;}
+if(mode==='decision')return `<tr data-row="${r.uid}"><td>${idx+1}</td><td>${esc(r.mat||'')}</td><td>${esc(r.nom||'')}</td><td>${esc(r.emploi||'')}</td><td>${posteCell}</td><td style="text-align:center"><select class="ca" style="display:none" data-tip="Choisir un agent">${opts}</select><button class="icobtn ca-sel" data-tip="Choisir un agent">👤</button> <button class="icobtn danger cr-del" data-tip="Retirer">✕</button></td></tr>`;
+return `<tr data-row="${r.uid}"><td>${idx+1}</td><td>${esc(r.mat||'')}</td><td>${esc(r.nom||'')}</td><td>${esc(r.emploi||'')}</td><td>${posteControl(r.posteActuel,'','cpa')}</td><td>${posteCell}</td><td style="text-align:center"><select class="ca" style="display:none" data-tip="Choisir un agent">${opts}</select><button class="icobtn ca-sel" data-tip="Choisir un agent">👤</button> <button class="icobtn danger cr-del" data-tip="Retirer">✕</button></td></tr>`;}
 function renderCollRows(){const mode=(DEF(mCtx.type)||{}).collMode||'note';const tb=$('mmCollTable').querySelector('tbody');
 tb.innerHTML=(mCtx.collAgents||[]).map((r,i)=>collRowHTML(r,i,mode)).join('')||`<tr><td colspan="${mode==='decision'?6:7}" style="text-align:center;color:var(--mut)">Aucun agent ajouté.</td></tr>`;}
 function renderDecRows(){const sameDate=!!(DEF(mCtx.type)||{}).sameDate;
-$('mmDecList').innerHTML=(mCtx.collDec||[]).map((d,i)=>`<div class="numgrp" style="margin:6px 0"><input class="in dn" data-i="${i}" data-tip="Numéro de la décision additionnelle" placeholder="N° décision" value="${esc(d.num||'')}">${sameDate?'':`<input class="in dd" data-i="${i}" data-tip="Date de cette décision" type="date" value="${d.date||''}">`}</div>`).join('')||'<div style="color:var(--mut);font-size:11.5px">Aucune décision additionnelle.</div>';}
+$('mmDecList').innerHTML=(mCtx.collDec||[]).map((d,i)=>`<div class="numgrp" style="margin:6px 0"><input class="in dn" data-i="${i}" data-tip="Numéro de la décision" placeholder="N° décision" value="${esc(d.num||'')}">${sameDate?'':`<input class="in dd" data-i="${i}" data-tip="Date" type="date" value="${d.date||''}">`}</div>`).join('')||'<div style="color:var(--mut);font-size:11.5px">Aucune décision additionnelle.</div>';}
 function openTypeModal(a){tmAgent=a;tmSel=null;
 $('tmAgent').innerHTML='Agent : <b style="color:var(--red)">'+esc(fullName(a))+'</b>';
 $('tmGrid').innerHTML=ACTION_DEFS.map(d=>`<button data-mk="${d.key}" data-tip="Créer : ${esc(d.nom)}">📄 ${d.nom}</button>`).join('');
 $('typeModal').classList.add('on');}
 function setupMvModal(def,f,agent,rec){
-$('mmTitle').textContent=(mCtx.mode==='new'?'📄 ':'️ ')+def.nom;
+$('mmTitle').textContent=(mCtx.mode==='new'?'📄 ':'✏️ ')+def.nom;
 $('mmIdBox').style.display=def.collective?'none':'';
 if(!def.collective)$('mmId').innerHTML=identHTML(rec?rec:agentToIdent(agent),def.noDir);
 $('mmFields').innerHTML=fieldsHTML(def,f);
@@ -1470,7 +1653,7 @@ row.poste=readPosteIn(tr,'cp');
 row.posteActuel=cm==='decision'?'':readPosteIn(tr,'cpa');
 return row;}).filter(r=>r.aid||r.mat);
 mCtx.collAgents=rows;
-if(!rows.length){toast('⚠ Ajoutez au moins un agent au tableau.','err');return;}
+if(!rows.length){toast('⚠ Ajoutez au moins un agent.','err');return;}
 const first=state.agents.find(x=>x.id===rows[0].aid)||rows[0];
 g.nom=rows[0].nom||fullName(first);g.matricule=rows[0].mat||'';g.emploi=rows[0].emploi||'';
 g.direction=getVal(first,det.dir)||'';g.service=getVal(first,det.srv)||'';g.fonction=getVal(first,det.fct)||'';g.sexe=String(getVal(first,det.sexe)||'');
@@ -1480,7 +1663,7 @@ if(mCtx.type==='aa'){const used=aaUsed(aid,mCtx.mode==='edit'?mCtx.id:null);cons
 f.totalAA=total;f.resteAA=Math.max(0,AA_MAX-Math.min(total,AA_MAX));f.debord=Math.max(0,total-AA_MAX);
 f.resteCA=Math.max(0,CA_MAX-caUsed(aid,mCtx.mode==='edit'?mCtx.id:null)-f.debord);}
 const conf=conflit(aid,deb,fin,mCtx.mode==='edit'?mCtx.id:null);
-if(conf){toast('⚠ Conflit de période avec « '+DEF(conf.type).nom+' ».','err',7000);return;}
+if(conf){toast('⚠ Conflit de période.','err',7000);return;}
 const sigId=$('mmSig').value||null;let rec;
 if(mCtx.mode==='new'){rec={id:uid(),type:mCtx.type,aid:aid||null,agentId:mCtx.agentId||null,created:Date.now(),sigId,...g,f,debut:deb,fin};
 if(def.collective){rec.aids=mCtx.collAgents.map(r=>r.aid).filter(Boolean);rec.collAgents=mCtx.collAgents;rec.collDec=mCtx.collDec;rec.nomCount=rec.aids.length;}
@@ -1498,12 +1681,12 @@ if(def.fonctions)rec.funcRows=mCtx.funcRows;
 if(def.postesCT)rec.posteRows=mCtx.posteRows;
 if(def.disciplines)rec.discRows=mCtx.discRows;}
 markSortie(rec);persistMv(rec);refreshAll();
-toast('✓ Action enregistrée selon le type « '+def.nom+' » ('+storageModeLabel()+').');
+toast('✓ Action enregistrée selon le type « '+def.nom+' ».');
 if(mCtx.type==='aa'&&rec.f.debord>0)toast('ℹ Débordement : '+rec.f.debord+' j imputé(s) au congé annuel.','info',7000);
 if(print){printWord(rec);saveMovementToDossier(rec);}
 closeMv();}
 function closeMv(){$('mvModal').classList.remove('on');mCtx=null;}
-/* ═══════════ LISTES DES ACTIONS ═══════════ */
+
 function sigName(id){const s=state.settings.signataires.find(x=>x.id===id);return s?s.nomPrenom:'—';}
 function renderMvSelect(){const sorted=ALPHA_DEFS();
 if(!sorted.some(d=>d.key===curMv))curMv=sorted[0].key;
@@ -1514,58 +1697,109 @@ list.sort((a,b)=>String(a.nom||'').localeCompare(String(b.nom||''),'fr'));
 $('mvTitle').innerHTML='<b>'+def.nom+'</b> — '+list.length+' document(s)';
 let html='';list.forEach((m,i)=>{const per=m.debut?(m.fin&&m.fin!==m.debut?isoToFr(m.debut)+' → '+isoToFr(m.fin):isoToFr(m.debut)):'—';
 const nm=esc(m.nom||'')+(m.nomCount>1?' <span class="badge y">+'+(m.nomCount-1)+'</span>':'');
-html+=`<tr><td style="color:var(--mut);font-weight:700">${i+1}</td><td>${esc(m.matricule||'')}</td><td style="font-weight:700">${nm}</td><td>${esc(m.direction||'')}</td><td>${esc(numPiece(m.f))}</td><td>${per}</td><td>${esc(sigName(m.sigId))}</td><td>${m.created?new Date(m.created).toLocaleDateString('fr-FR'):'—'}</td><td class="act-cell"><button class="icobtn" data-med="${m.id}" data-tip="Modifier cette action">✏️</button> <button class="icobtn" data-mpr="${m.id}" data-tip="Imprimer (Word) + classer dans [matricule]/Actions">📄</button> <button class="icobtn danger" data-mdel="${m.id}" data-tip="Supprimer cette action">🗑</button></td></tr>`;});
+html+=`<tr><td style="color:var(--mut);font-weight:700">${i+1}</td><td>${esc(m.matricule||'')}</td><td style="font-weight:700">${nm}</td><td>${esc(m.direction||'')}</td><td>${esc(numPiece(m.f))}</td><td>${per}</td><td>${esc(sigName(m.sigId))}</td><td>${m.created?new Date(m.created).toLocaleDateString('fr-FR'):'—'}</td><td class="act-cell"><button class="icobtn" data-med="${m.id}" data-tip="Modifier">✏️</button> <button class="icobtn" data-mpr="${m.id}" data-tip="Imprimer (Word)">📄</button> <button class="icobtn danger" data-mdel="${m.id}" data-tip="Supprimer">🗑</button></td></tr>`;});
 if(!list.length)html='<tr><td colspan="9" style="text-align:center;color:var(--mut);padding:18px">Aucune action de ce type.</td></tr>';
 $('mvBody').innerHTML=html;}
-/* ═══════════ STATISTIQUES ═══════════ */
+
 function statsData(){const acts=ACTION_DEFS;
 const rows=actAgents().map(a=>({a,counts:acts.map(d=>state.mouvements.filter(m=>(m.aid===a.id||(m.aids&&m.aids.includes(a.id)))&&m.type===d.key).length)}));
 return{acts,rows};}
 function renderStats(){const s=statsData();
-let h='<table class="tbl"><thead><tr><th data-tip="Agent (liste active)">Agent</th>'+s.acts.map(d=>`<th data-tip="${esc(d.nom)}">${esc(d.nom.slice(0,12))}</th>`).join('')+'<th data-tip="Total des actes de l\u2019agent">Total</th></tr></thead><tbody>';
+let h='<table class="tbl"><thead><tr><th>Agent</th>'+s.acts.map(d=>`<th data-tip="${esc(d.nom)}">${esc(d.nom.slice(0,12))}</th>`).join('')+'<th>Total</th></tr></thead><tbody>';
 let tot=s.acts.map(()=>0),grand=0;
 s.rows.forEach(r=>{const t=r.counts.reduce((x,y)=>x+y,0);grand+=t;r.counts.forEach((c,i)=>tot[i]+=c);
-h+='<tr><td style="font-weight:700" data-tip="'+esc(fullName(r.a))+'">'+esc(fullName(r.a))+'</td>'+r.counts.map((c,i)=>`<td data-tip="${esc(s.acts[i].nom)} : ${c} acte(s)">${c||''}</td>`).join('')+`<td style="font-weight:800" data-tip="Total : ${t} acte(s)">${t||''}</td></tr>`;});
-h+='<tr style="background:#eef2f7;font-weight:800"><td>TOTAL</td>'+tot.map((c,i)=>`<td data-tip="${esc(s.acts[i].nom)} : ${c}">${c||''}</td>`).join('')+`<td data-tip="Total général">${grand}</td></tr></tbody></table>`;
+h+='<tr><td style="font-weight:700">'+esc(fullName(r.a))+'</td>'+r.counts.map((c,i)=>`<td>${c||''}</td>`).join('')+`<td style="font-weight:800">${t||''}</td></tr>`;});
+h+='<tr style="background:#eef2f7;font-weight:800"><td>TOTAL</td>'+tot.map((c,i)=>`<td>${c||''}</td>`).join('')+`<td>${grand}</td></tr></tbody></table>`;
 $('stScroll').innerHTML=h;$('stInfo').textContent=s.rows.length+' agents • '+grand+' acte(s).';}
-/* ═══════════ PARAMÈTRES ═══════════ */
+
 function renderParams(){renderUsers();renderSigs();renderLogoPrev();renderTimbre();renderPosteList();
 $('villeInput').value=state.settings.ville||'Ouagadougou';
 const tp=state.settings.tip||{};$('tipSize').value=tp.size||'13px';$('tipFont').value=tp.font||"'Public Sans',sans-serif";$('tipColor').value=tp.color||'#ffffff';$('tipBg').value=tp.bg||'#1447A6';applyTip();
 $('baseDirInfo').textContent=state.settings.baseDirName?('Dossier racine : '+state.settings.baseDirName):'Aucun dossier racine.';
-const ei=$('exportDirInfo');if(ei)ei.textContent=exportDirHandle?('Dossier export « Agents.xlsx » : '+exportDirHandle.name):'Dossier export non indexé (repli : Enregistrer sous / Téléchargements).';
+const ei=$('exportDirInfo');if(ei)ei.textContent=exportDirHandle?('Dossier export : '+exportDirHandle.name):'Dossier export non indexé.';
 storInfo();}
 function renderUsers(){const users=[...state.settings.users].sort((a,b)=>String(a.nomPrenom||'').localeCompare(String(b.nomPrenom||''),'fr'));
-$('userRows').innerHTML=users.map((u,i)=>`<tr><td>${i+1}</td><td style="font-weight:700">${esc(u.nomPrenom)}</td><td>${esc(u.user)}</td><td>${esc(u.pass)}</td><td>${esc(u.type)}</td><td class="act-cell"><button class="icobtn" data-ued="${u.id}" data-tip="Modifier ce compte">✏️</button> <button class="icobtn danger" data-udel="${u.id}" data-tip="Supprimer ce compte">🗑</button></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--mut)">Aucun.</td></tr>';}
+$('userRows').innerHTML=users.map((u,i)=>{const nDir=u.visibleDirs&&u.visibleDirs.length?u.visibleDirs.length+' direction(s)':'Toutes';
+return `<tr><td>${i+1}</td><td style="font-weight:700">${esc(u.nomPrenom)}</td><td>${esc(u.user)}</td><td>••••••</td><td>${esc(u.type)}</td><td data-tip="Directions visibles">${nDir}</td><td class="act-cell"><button class="icobtn" data-ued="${u.id}" data-tip="Modifier">✏️</button> <button class="icobtn danger" data-udel="${u.id}" data-tip="Supprimer">🗑</button></td></tr>`;}).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--mut)">Aucun.</td></tr>';}
 function renderSigs(){const sigs=[...state.settings.signataires].sort((a,b)=>String(a.nomPrenom||'').localeCompare(String(b.nomPrenom||''),'fr'));
-$('sigRows').innerHTML=sigs.map((s,i)=>`<tr><td>${i+1}</td><td style="font-weight:700">${esc(s.nomPrenom)}</td><td>${esc(s.distinction||'—')}</td><td>${esc(s.lib)}</td><td>${s.actif?'<span class="badge g" data-tip="Signataire utilisé par défaut dans les actes">Actif ✓</span>':`<button class="icobtn" data-sact="${s.id}" data-tip="Définir comme signataire actif par défaut">Activer</button>`}</td><td class="act-cell"><button class="icobtn" data-sed="${s.id}" data-tip="Modifier ce signataire (nom déjà sélectionné)">✏️</button> <button class="icobtn danger" data-sdel="${s.id}" data-tip="Supprimer ce signataire">🗑</button></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--mut)">Aucun.</td></tr>';}
+$('sigRows').innerHTML=sigs.map((s,i)=>`<tr><td>${i+1}</td><td style="font-weight:700">${esc(s.nomPrenom)}</td><td>${esc(s.distinction||'—')}</td><td>${esc(s.lib)}</td><td>${s.actif?'<span class="badge g">Actif ✓</span>':`<button class="icobtn" data-sact="${s.id}" data-tip="Activer">Activer</button>`}</td><td class="act-cell"><button class="icobtn" data-sed="${s.id}" data-tip="Modifier">✏️</button> <button class="icobtn danger" data-sdel="${s.id}" data-tip="Supprimer">🗑</button></td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--mut)">Aucun.</td></tr>';}
 function renderLogoPrev(){$('logoPrev').innerHTML=state.settings.logo?`<img src="${state.settings.logo}" alt="">`:'<span class="ph">Aperçu</span>';}
 function renderTimbre(){const t=state.settings.timbre||{};
 $('tInstitut').value=t.institut||'';$('tDg').value=t.dg||'';$('tSg').value=t.sg||'';$('tDirection').value=t.direction||'';$('tService').value=t.service||'';$('tNumero').value=t.numero||'';$('tVille').value=t.ville||'';$('tInfo').textContent='';}
 function agentSelHTML(sel){return `<option value="">— Choisir un agent —</option>`+sortedAgents().map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${esc(fullName(a))}</option>`).join('');}
 function openUserModal(u){uCtx={kind:'user',id:u?u.id:null};$('umTitle').textContent=u?'Modifier l\u2019utilisateur':'Ajouter un utilisateur';$('umLeg').textContent='Compte (agent requis)';
-$('umGrid').innerHTML=`<div style="grid-column:1/-1"><label class="fl">Nom et prénom (agent)</label><select class="in" data-u="agentId" data-tip="Le compte doit correspondre à un agent de la structure">${agentSelHTML(u?u.agentId:null)}</select></div>
+const curDirs=u&&u.visibleDirs?u.visibleDirs:USER_DIRS;
+$('umGrid').innerHTML=`<div style="grid-column:1/-1"><label class="fl">Nom et prénom (agent)</label><select class="in" data-u="agentId" data-tip="Agent de la structure">${agentSelHTML(u?u.agentId:null)}</select></div>
 <div><label class="fl">Nom</label><input class="in" data-u="nom" data-tip="Nom en majuscules" value="${esc(u?u.nom||'':'')}"></div>
-<div><label class="fl">Prénom</label><input class="in" data-u="prenom" data-tip="Prénom : première lettre majuscule" value="${esc(u?u.prenom||'':'')}"></div>
-<div><label class="fl">Nom d'utilisateur</label><input class="in" data-u="user" data-tip="Identifiant de connexion" value="${esc(u?u.user:'')}"></div>
-<div><label class="fl">Mot de passe</label><input class="in" data-u="pass" data-tip="Mot de passe du compte" value="${esc(u?u.pass:'')}"></div>
-<div style="grid-column:1/-1"><label class="fl">Type</label><select class="in" data-u="type" data-tip="Droits : Administrateur (suppressions), Directeur, Chef de service, Agent">${UTYPES.map(t=>`<option ${u&&u.type===t?'selected':''}>${t}</option>`).join('')}</select></div>`;
-$('uModal').classList.add('on');}
+<div><label class="fl">Prénom</label><input class="in" data-u="prenom" data-tip="Prénom capitalisé" value="${esc(u?u.prenom||'':'')}"></div>
+<div><label class="fl">Nom d'utilisateur</label><input class="in" data-u="user" data-tip="Identifiant" value="${esc(u?u.user:'')}"></div>
+<div><label class="fl">Mot de passe</label><input class="in" data-u="pass" data-tip="Mot de passe" value="${esc(u?u.pass:'')}"></div>
+<div style="grid-column:1/-1"><label class="fl">Type</label><select class="in" data-u="type" data-tip="Droits">${UTYPES.map(t=>`<option ${u&&u.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+<div style="grid-column:1/-1">
+<label class="fl">Directions visibles par cet utilisateur</label>
+<div class="dir-chk-grid" id="userDirsGrid">${USER_DIRS.map(d=>`<label><input type="checkbox" class="udir-cb" value="${esc(d)}" ${curDirs.includes(d)?'checked':''}> ${esc(d)}</label>`).join('')}</div>
+<div style="display:flex;gap:6px;margin-top:6px">
+<button type="button" class="icobtn" id="userDirsAll" data-tip="Tout cocher">✔ Tout cocher</button>
+<button type="button" class="icobtn" id="userDirsNone" data-tip="Tout décocher">✖ Tout décocher</button>
+</div>
+</div>`;
+$('uModal').classList.add('on');
+$('userDirsAll').onclick=()=>document.querySelectorAll('.udir-cb').forEach(c=>c.checked=true);
+$('userDirsNone').onclick=()=>document.querySelectorAll('.udir-cb').forEach(c=>c.checked=false);
+}
 function openSigModal(s){uCtx={kind:'sig',id:s?s.id:null};$('umTitle').textContent=s?'Modifier le signataire':'Ajouter un signataire';$('umLeg').textContent='Signataire (agent requis)';
 const idx=s?Math.max(0,SIG_TYPES.findIndex(t=>t.lib===s.lib)):0;
 const identBlock=s
-?`<div style="grid-column:1/-1"><label class="fl">Signataire (nom déjà sélectionné)</label><input class="in" value="${esc(s.nomPrenom)}" readonly data-tip="Modification sans rappel de la liste générale" style="background:#eef2f7;font-weight:800;color:var(--ink2)"></div>`
-:`<div style="grid-column:1/-1"><label class="fl">Nom et prénom (agent)</label><select class="in" data-u="agentId" data-tip="Choisir l'agent qui sera signataire">${agentSelHTML(null)}</select></div>`;
+?`<div style="grid-column:1/-1"><label class="fl">Signataire (nom déjà sélectionné)</label><input class="in" value="${esc(s.nomPrenom)}" readonly style="background:#eef2f7;font-weight:800;color:var(--ink2)"></div>`
+:`<div style="grid-column:1/-1"><label class="fl">Nom et prénom (agent)</label><select class="in" data-u="agentId" data-tip="Agent">${agentSelHTML(null)}</select></div>`;
 $('umGrid').innerHTML=identBlock+
-`<div><label class="fl">Nom</label><input class="in" data-u="nom" data-tip="Nom en majuscules (ligne de signature)" value="${esc(s?s.nom||'':'')}"></div>
-<div><label class="fl">Prénom</label><input class="in" data-u="prenom" data-tip="Prénom capitalisé (ligne de signature)" value="${esc(s?s.prenom||'':'')}"></div>
-<div style="grid-column:1/-1"><label class="fl">Distinction honorifique</label><input class="in" data-u="distinction" data-tip="Imprimée sous le nom, taille 9 italique" value="${esc(s?s.distinction||'':'')}"></div>
-<div style="grid-column:1/-1"><label class="fl">Type de signature</label><select class="in" data-u="sigtype" data-tip="Détermine la mention P/D, P/O, P/I et le titre imprimés">${SIG_TYPES.map((t,i)=>`<option value="${i}" ${i===idx?'selected':''}>${t.lib}</option>`).join('')}</select></div>`;
+`<div><label class="fl">Nom</label><input class="in" data-u="nom" data-tip="Nom en majuscules" value="${esc(s?s.nom||'':'')}"></div>
+<div><label class="fl">Prénom</label><input class="in" data-u="prenom" data-tip="Prénom capitalisé" value="${esc(s?s.prenom||'':'')}"></div>
+<div style="grid-column:1/-1"><label class="fl">Distinction honorifique</label><input class="in" data-u="distinction" data-tip="Distinction" value="${esc(s?s.distinction||'':'')}"></div>
+<div style="grid-column:1/-1"><label class="fl">Type de signature</label><select class="in" data-u="sigtype" data-tip="Type">${SIG_TYPES.map((t,i)=>`<option value="${i}" ${i===idx?'selected':''}>${t.lib}</option>`).join('')}</select></div>`;
 $('uModal').classList.add('on');}
 function activeSig(){return state.settings.signataires.find(s=>s.actif)||state.settings.signataires[0]||null;}
 function loadLogoSize(){if(!state.settings.logo){state.settings.logoW=0;state.settings.logoH=0;return;}
 const img=new Image();img.onload=()=>{state.settings.logoW=img.naturalWidth||0;state.settings.logoH=img.naturalHeight||0;};img.src=state.settings.logo;}
-/* ═══════════ GÉNÉRATEUR WORD ═══════════ */
+
+/* ═══════════ MESSAGES & FICHIERS ═══════════ */
+function renderMessages(){
+    const list = state.messages || [];
+    const onlyUnread = $('msgOnlyUnread').checked;
+    const filtered = onlyUnread ? list.filter(m => !m.readBy || !m.readBy.includes(currentUser.id)) : list;
+    filtered.sort((a,b) => (b.created||0) - (a.created||0));
+    
+    $('msgDest').innerHTML = '<option value="__all__">📢 Tous les utilisateurs</option>' + state.settings.users.map(u => `<option value="${u.id}">${esc(u.nomPrenom)}</option>`).join('');
+    $('msgInfo').textContent = filtered.length + ' message(s) / fichier(s)';
+    
+    $('msgList').innerHTML = filtered.length ? filtered.map(m => {
+        const isRead = m.readBy && m.readBy.includes(currentUser.id);
+        const fromUser = state.settings.users.find(u => u.id === m.fromId);
+        const readers = (m.readBy || []).map(id => {
+            const u = state.settings.users.find(x => x.id === id);
+            return u ? u.nomPrenom : 'Inconnu';
+        }).join(', ');
+        
+        const canDelete = currentUser.type === 'Administrateur' || m.fromId === currentUser.id;
+        
+        return `<div class="msg-item ${isRead?'':'unread'}">
+            <div style="font-weight:700;font-size:13px">${esc(m.subject || (m.file ? '📎 Fichier : ' + m.file.name : '(Sans sujet)'))}</div>
+            <div class="msg-body">${esc(m.body || '')}</div>
+            ${m.file ? `<div style="margin-top:6px"><a href="${m.file.data}" download="${esc(m.file.name)}" class="btn ghost" style="padding:4px 10px;font-size:11px">📥 Télécharger ${esc(m.file.name)}</a></div>` : ''}
+            <div class="msg-meta">
+                <span class="from">De : ${esc(fromUser ? fromUser.nomPrenom : 'Système')}</span>
+                <span>📅 ${m.created ? new Date(m.created).toLocaleString('fr-FR') : '—'}</span>
+                <span>${isRead ? '✅ Lu' : '🔴 Non lu'}</span>
+            </div>
+            <div class="msg-readers">👁 Lu par : ${esc(readers || 'Personne')}</div>
+            <div class="msg-actions">
+                ${!isRead ? `<button class="btn red" style="padding:4px 10px;font-size:11px" data-markread="${m.id}">✅ Marquer comme lu</button>` : ''}
+                ${canDelete ? `<button class="icobtn danger" data-delmsg="${m.id}">🗑 Supprimer</button>` : ''}
+            </div>
+        </div>`;
+    }).join('') : '<div style="text-align:center;color:var(--mut);padding:20px">Aucun message.</div>';
+}
+
 function numDoc(){const t=state.settings.timbre||{};return 'N° '+(t.numero||(YEAR+'____/INFPE/DG/SG/DRH'));}
 const CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
 function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_TABLE[(c^u8[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
@@ -1596,9 +1830,6 @@ const mt=state.settings.logo.match(/^data:(image\/[a-z]+);base64,(.+)$/i);if(!mt
 try{const b=atob(mt[2]);const bytes=new Uint8Array(b.length);for(let i=0;i<b.length;i++)bytes[i]=b.charCodeAt(i);
 return{bytes,ext:mt[1].split('/')[1].toLowerCase()==='png'?'png':'jpeg'};}catch(e){return null;}}
 function ampLine(l){return '- '+l+' '+'.'.repeat(Math.max(3,41-l.length))+' 01';}
-function posteLines(f){const out=[];for(let n=1;n<=6;n++){const p=f['poste'+n];if(!p)continue;
-out.push([{text:n+'- '+p+(f['poste'+nDeb]?' - '+fmtMY(f['poste'+nDeb]):'')+(f['poste'+nFin]?' - '+fmtMY(f['poste'+nFin]):'')}]);}
-return out;}
 function rowsTableXml(rows,headLeft){if(!rows||!rows.length)return'';
 let r='<w:tr><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr>'+paraXml(runXml(headLeft,{bold:true,size:20}),'center',0)+'</w:tc><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr>'+paraXml(runXml(headLeft==='Type de poste occupé'?'Période':'Statut',{bold:true,size:20}),'center',0)+'</w:tc></w:tr>';
 rows.forEach(x=>{r+='<w:tr><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr>'+paraXml(runXml(x.type||'',{size:20}),'left',0)+'</w:tc><w:tc><w:tcPr><w:tcW w:w="5000" w:type="pct"/></w:tcPr>'+paraXml(runXml(x.statut||'',{size:20}),'left',0)+'</w:tc></w:tr>';});
@@ -1650,7 +1881,7 @@ paras=[[{text:"Vu la demande de l'intéressé"+e+" en date du "+dl(f.demande)+" 
 [{text:"L'intéressé"+e+" est prié"+e+" de rejoindre son poste dès l'expiration de la présente autorisation."}],
 [{text:foiA}]];break;
 case 'ca':{const an=(f.debutConge||f.dateDecision||'').slice(0,4)||YEAR;
-paras=[[{text:cam+' '},{text:nom,bold:true},{text:', matricule '},{text:mat,bold:true},{text:', '+titr+(dir?' en service à '+dir:'')+(svcW&&svcW!==dir?' ('+svcW+')':'')},{text:", bénéficiaire d'un congé administratif d'un mois à solde entière au titre de l'année "},{text:an,bold:true},{text:", suivant Décision n° "+numPiece(f)+" du "+dl(f.dateDecision)+", est autorisé"+e+" à jouir au Burkina Faso de la "+(f.tranche||'…………')+" dudit congé allant du "+dl(f.debutConge)+" au "+dl(f.finConge)+" inclus."}],
+paras=[[{text:cam+' '},{text:nom,bold:true},{text:', matricule '},{text:mat,bold:true},{text:', '+titr+(dir?' en service à '+dir:'')+(svcW&&svcW!==dir?' ('+svcW+')':'')},{text:", bénéficiaire d'un congé administratif au titre de l'année "},{text:an,bold:true},{text:", suivant Décision n° "+numPiece(f)+" du "+dl(f.dateDecision)+", est autorisé"+e+" à jouir au Burkina Faso de la "+(f.tranche||'…………')+" dudit congé allant du "+dl(f.debutConge)+" au "+dl(f.finConge)+" inclus."}],
 [{text:"L'intéressé"+e+" reprendra service le "+dl(f.reprise)+"."}],
 [{text:foiA}]];break;}
 case 'apcsr':{
@@ -1724,7 +1955,7 @@ case 'ct':{
 const per=(f.debutPeriode||f.finPeriode)?' durant la période allant '+fmtPeriode(f.debutPeriode,f.finPeriode):'';
 paras=[[{text:CERTIFIE+cam+' '},{text:nom,bold:true},{text:', matricule '},{text:mat,bold:true},{text:', '+empW+(f.fonctionPrecedente?', précédemment '+f.fonctionPrecedente:'')+(f.structurePrecedente?' a travaillé au (à la) '+f.structurePrecedente:'')+per+'.'}],
 [{text:"Durant cette période, l'intéressé"+e+" a occupé les postes et fonctions ci-après :"}]];
-const lignes=(m.posteRows&&m.posteRows.length)?m.posteRows.map((r,i)=>[{text:(i+1)+'- '+r.type+(r.statut?' - '+r.statut:'')}]):posteLines(f);
+const lignes=(m.posteRows&&m.posteRows.length)?m.posteRows.map((r,i)=>[{text:(i+1)+'- '+r.type+(r.statut?' - '+r.statut:'')}]):[];
 lignes.forEach(l=>paras.push(l));
 paras.push([{text:'En foi de quoi, le présent certificat lui est délivré pour servir et valoir ce que de droit.'}]);break;}
 case 'nam':
@@ -1739,11 +1970,11 @@ paras=[[{text:'DECISION N° '+numPiece(f)+(f.dateDecision?' du '+dl(f.dateDecisi
 [{text:'portant affectation des agents détachés auprès de l\u2019INFPE',bold:true}],
 [{text:'LE DIRECTEUR GENERAL, DECIDE :',bold:true}]];
 VISAS.forEach(v=>paras.push([{text:v}]));
-paras.push([{text:'Article 1 : Les agents ci-après désignés, détachés auprès de l\u2019INFPE, sont affectés conformément au tableau suivant :'}]);
+paras.push([{text:'Article 1 : Les agents ci-après désignés sont affectés conformément au tableau suivant :'}]);
 tableAfter=paras.length-1;
 extraXml=collTableXml(m.collAgents||[],'decision');
-paras.push([{text:'Article 2 : La présente décision prend effet pour compter de la date de prise de service des intéressés.'}]);
-paras.push([{text:'Article 3 : Le Secrétaire général est chargé de l\u2019exécution de la présente décision qui sera enregistrée, publiée et communiquée partout où besoin sera.'}]);break;}
+paras.push([{text:'Article 2 : La présente décision prend effet pour compter de la date de prise de service.'}]);
+paras.push([{text:'Article 3 : Le Secrétaire général est chargé de l\u2019exécution de la présente décision.'}]);break;}
 case 'nacdu':case 'nacmd':case 'nacdd':case 'nacm':{
 const dp=decPhrase(m,f);
 paras=[[{text:(m.type==='nacm'?'Les agents ci-après désignés sont affectés conformément au tableau ci-dessous :':'Les agents ci-après désignés, affectés à '+(f.lieu||'…………')+dp+', sont affectés conformément au tableau ci-dessous :')}]];
@@ -1786,7 +2017,7 @@ if(dd.indXml&&i===dd.indAfter)body+=dd.indXml;
 if(extraXml&&i===tAfter)body+=extraXml;});
 if(m.type==='aa'){
 body+=paraXml(runXml(''),'left',0)+paraXml(runXml('Jours d\u2019absence consommés : '+((f.totalAA)||0)+' / '+AA_MAX+' — Reste : '+(f.resteAA!=null?f.resteAA:AA_MAX)+' jour(s).',{size:18,bold:true}),'left',40);
-if((f.debord||0)>0)body+=paraXml(runXml('⚠ Débordement : '+f.debord+' jour(s) imputé(s) sur le congé annuel — l\u2019agent consomme son congé annuel. Reste : '+(f.resteCA!=null?f.resteCA:CA_MAX)+' jour(s).',{size:18,bold:true,italic:true}),'left',40);}
+if((f.debord||0)>0)body+=paraXml(runXml('⚠ Débordement : '+f.debord+' jour(s) imputé(s) sur le congé annuel.',{size:18,bold:true,italic:true}),'left',40);}
 if(isCertAdmin&&dd.dualXml){body+=paraXml(runXml(''),'left',0)+dd.dualXml;}
 if(!isCertAdmin&&!NO_AMPLI.includes(m.type)){
 body+=paraXml(runXml(''),'left',0)+paraXml(runXml('Ampliations',{bold:true,underline:true,size:18}),'left',80);
@@ -1828,10 +2059,10 @@ const a=document.createElement('a');
 a.href=url;a.download=fn;a.style.display='none';
 document.body.appendChild(a);a.click();a.remove();
 setTimeout(()=>URL.revokeObjectURL(url),60000);
-toast('📄 Word téléchargé : « '+docTitle(m.type)+' » (dossier Téléchargements).','info');
+toast('📄 Word téléchargé : « '+docTitle(m.type)+' ».','info');
 return true;
 }catch(e){toast('⚠ Erreur Word : '+esc(e&&e.message?e.message:String(e)),'err',9000);return false;}}
-/* ═══════════ ÉVÉNEMENTS ═══════════ */
+
 document.querySelectorAll('.nitem').forEach(n=>n.addEventListener('click',()=>switchTab(n.dataset.tab)));
 document.querySelectorAll('[data-ptab]').forEach(b=>b.addEventListener('click',()=>{
 document.querySelectorAll('[data-ptab]').forEach(x=>x.classList.toggle('on',x===b));
@@ -1877,7 +2108,7 @@ else{el=document.createElement('input');el.type='text';el.value=cur;}
 td.classList.add('editing');td.textContent='';td.appendChild(el);el.focus();if(el.select)el.select();
 const commit=()=>{let v=el.value;if(el.type==='date'&&v)v=isoToFr(v);
 if(col===det.nom)v=v.toUpperCase();if(col===det.prenom)v=v.charAt(0).toUpperCase()+v.slice(1);
-a.data[col]=v;persistAgent(a);renderAgents();toast('✓ Cellule enregistrée automatiquement.');};
+a.data[col]=v;persistAgent(a);renderAgents();toast('✓ Cellule enregistrée.');};
 el.addEventListener('blur',commit);
 el.addEventListener('change',()=>{if(el.tagName==='SELECT')el.blur();});
 el.addEventListener('keydown',ev=>{if(ev.key==='Enter')el.blur();if(ev.key==='Escape'){el.removeEventListener('blur',commit);renderAgents();}});});
@@ -1899,9 +2130,9 @@ $('btnBaseDir').addEventListener('click',async()=>{if(!fsSupported()){toast('Acc
 try{const h=await window.showDirectoryPicker({mode:'readwrite'});baseDirHandle=h;baseScanned=false;baseDirNames=new Set();
 state.settings.baseDirName=h.name;persistKV();try{await DB.kvSet('baseDir',h);}catch(e){}
 $('baseDirInfo').textContent='Dossier racine : '+h.name;
-toast('📂 Racine : <b>'+esc(h.name)+'</b> — génération des sous-dossiers matricules…','info',6000);
+toast('📂 Racine : <b>'+esc(h.name)+'</b>.','info',6000);
 const c=await ensureAllMatriculeDirs();
-toast('📁 '+c+' sous-dossier(s) matricule créé(s) automatiquement.','ok',6000);
+toast('📁 '+c+' sous-dossier(s) matricule créé(s).','ok',6000);
 renderDossier();}catch(e){if(e&&e.name!=='AbortError')toast('Ouverture impossible.','err');}});
 $('dImport').addEventListener('click',()=>$('importFile').click());
 $('importFile').addEventListener('change',e=>{if(e.target.files[0])doImport(e.target.files[0]);e.target.value='';});
@@ -1915,12 +2146,12 @@ $('dExportDir').addEventListener('click',chooseExportDir);
 $('dRefeedDir').addEventListener('click',refeedFromIndexedDir);
 $('dRefeedFile').addEventListener('click',()=>$('importWbFile').click());
 $('importWbFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;
-if(!confirm('Réalimenter tout le logiciel depuis « '+f.name+' » ? Les données actuelles (agents, sortis, actions) seront remplacées.')){e.target.value='';return;}
+if(!confirm('Réalimenter tout le logiciel depuis « '+f.name+' » ?')){e.target.value='';return;}
 f.arrayBuffer().then(buf=>refeedFromWorkbook(buf));e.target.value='';});
 $('mvExportX').addEventListener('click',exportAgentsWorkbook);
 $('mvExportDir').addEventListener('click',chooseExportDir);
 $('dClear').addEventListener('click',()=>{if(!isAdmin()){toast('⚠ Réservé aux administrateurs.','err');return;}
-if(!confirm('⚠ Supprimer TOUTE la liste et TOUTES les actions ? Irréversible.'))return;
+if(!confirm('⚠ Supprimer TOUTE la liste et TOUTES les actions ?'))return;
 const p1=prompt('🔒 Mot de passe :');if(p1===null)return;
 const p2=prompt('🔒 Confirmez :');if(p2===null)return;
 if(!checkPass(p1,p2)){toast('⚠ Mot de passe incorrect.','err');return;}
@@ -1934,7 +2165,7 @@ if(motif==='Autres'&&!detail){toast('Précisez « Autres ».','err');return;}
 if(!checkPass(p1,p2)){toast('⚠ Mot de passe incorrect.','err');return;}
 const a=state.agents.find(x=>x.id===pendingDel);if(!a)return;
 a.sortie={motif,detail,date:fdate(new Date())};persistAgent(a);$('delModal').classList.remove('on');
-refreshAll();toast('🗑 Agent supprimé — motif « '+motif+' ».');});
+refreshAll();toast('🗑 Agent supprimé.');});
 $('amPrev').addEventListener('click',()=>navAgent(-1));
 $('amNext').addEventListener('click',()=>navAgent(1));
 $('amSave').addEventListener('click',()=>saveAgentForm(false));
@@ -2025,16 +2256,18 @@ $('addUser').addEventListener('click',()=>openUserModal(null));
 $('addSig').addEventListener('click',()=>openSigModal(null));
 $('umSave').addEventListener('click',()=>{const g={};$('umGrid').querySelectorAll('[data-u]').forEach(i=>g[i.dataset.u]=i.value.trim());
 const np=(g.nom+' '+g.prenom).trim();if(!np){toast('Nom/prénom obligatoires.','err');return;}
+const selectedDirs = Array.from(document.querySelectorAll('.udir-cb:checked')).map(c => c.value);
+
 if(uCtx.kind==='user'){
-if(!g.agentId){toast('⚠ Choisissez un agent de la structure.','err');return;}
+if(!g.agentId){toast('⚠ Choisissez un agent.','err');return;}
 if(!g.user||!g.pass){toast('Identifiants obligatoires.','err');return;}
-const rec={id:uCtx.id||uid(),agentId:g.agentId,nom:g.nom.toUpperCase(),prenom:g.prenom.charAt(0).toUpperCase()+g.prenom.slice(1),nomPrenom:np,user:g.user,pass:g.pass,type:g.type};
+const rec={id:uCtx.id||uid(),agentId:g.agentId,nom:g.nom.toUpperCase(),prenom:g.prenom.charAt(0).toUpperCase()+g.prenom.slice(1),nomPrenom:np,user:g.user,pass:g.pass,type:g.type,visibleDirs:selectedDirs};
 if(uCtx.id){Object.assign(state.settings.users.find(u=>u.id===uCtx.id),rec);if(currentUser&&currentUser.id===rec.id)currentUser=state.settings.users.find(u=>u.id===rec.id);}
 else state.settings.users.push(rec);}
 else{
 let agentId=null;const selEl=$('umGrid').querySelector('[data-u=agentId]');
 if(selEl)agentId=selEl.value;
-if(!uCtx.id&&!agentId){toast('⚠ Choisissez un agent de la structure.','err');return;}
+if(!uCtx.id&&!agentId){toast('⚠ Choisissez un agent.','err');return;}
 if(uCtx.id){const ex=state.settings.signataires.find(s=>s.id===uCtx.id);agentId=ex?ex.agentId:null;}
 const t=SIG_TYPES[+g.sigtype||0];
 const rec={id:uCtx.id||uid(),agentId:agentId,nom:g.nom.toUpperCase(),prenom:g.prenom.charAt(0).toUpperCase()+g.prenom.slice(1),nomPrenom:np,distinction:g.distinction,lib:t.lib,pour:t.pour,titre:t.titre};
@@ -2059,7 +2292,101 @@ if(e.target.closest('[data-close]'))mb.classList.remove('on');}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.mback.on').forEach(m=>m.classList.remove('on'));});
 $('sufList').innerHTML=SUFIXES.map(s=>`<option value="${esc(s)}">`).join('');
 $('discList').innerHTML=DISC_TYPES.map(s=>`<option value="${esc(s)}">`).join('');
-/* ═══════════ GUIDE ═══════════ */
+
+/* Cloud Events */
+$('cloudTransfer').addEventListener('click',()=>{
+    const p=prompt('🔐 Mot de passe pour transférer la configuration officielle :');
+    if(!p||p!==currentUser.pass)return toast('⚠ Mot de passe incorrect.','err');
+    state.settings.cloud={url:SUPABASE_URL,key:SUPABASE_KEY};
+    persistKV();
+    initSupabase();
+    toast('✓ Configuration Cloud transférée.','ok');
+    renderCloud();
+});
+$('cloudSync').addEventListener('click',async()=>{
+    if(!supabaseClient)return toast('⚠ Configurez d\'abord le Cloud.','err');
+    setSave('busy');
+    await cloudPush();
+    await cloudPull(false);
+    setSave('ok');
+});
+
+/* Messages Events */
+$('msgNew').addEventListener('click', () => {
+    $('msgModalTitle').textContent = '✉️ Nouveau message';
+    $('msgSubject').value = '';
+    $('msgBody').value = '';
+    $('msgAttach').value = '';
+    $('msgModal').classList.add('on');
+});
+$('msgUpload').addEventListener('click', () => $('msgFileInput').click());
+$('msgFileInput').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+        const msg = {
+            id: uid(),
+            fromId: currentUser.id,
+            toId: '__all__',
+            subject: '📎 Fichier : ' + f.name,
+            body: '',
+            file: {name: f.name, data: rd.result},
+            created: Date.now(),
+            readBy: [currentUser.id]
+        };
+        if (!state.messages) state.messages = [];
+        state.messages.push(msg);
+        persistKV();
+        renderMessages();
+        toast('📎 Fichier envoyé à tous les utilisateurs.', 'ok');
+    };
+    rd.readAsDataURL(f);
+    e.target.value = '';
+});
+$('msgSend').addEventListener('click', () => {
+    const dest = $('msgDest').value;
+    const subj = $('msgSubject').value.trim();
+    const body = $('msgBody').value.trim();
+    if (!subj && !body) return toast('⚠ Sujet ou message requis.', 'err');
+    
+    const msg = {
+        id: uid(),
+        fromId: currentUser.id,
+        toId: dest,
+        subject: subj,
+        body: body,
+        created: Date.now(),
+        readBy: [currentUser.id]
+    };
+    if (!state.messages) state.messages = [];
+    state.messages.push(msg);
+    persistKV();
+    $('msgModal').classList.remove('on');
+    renderMessages();
+    toast('✉️ Message envoyé.', 'ok');
+});
+$('msgOnlyUnread').addEventListener('change', renderMessages);
+$('msgList').addEventListener('click', e => {
+    const mark = e.target.closest('[data-markread]');
+    if (mark) {
+        const m = state.messages.find(x => x.id === mark.dataset.markread);
+        if (m) {
+            if (!m.readBy) m.readBy = [];
+            if (!m.readBy.includes(currentUser.id)) m.readBy.push(currentUser.id);
+            persistKV();
+            renderMessages();
+        }
+        return;
+    }
+    const del = e.target.closest('[data-delmsg]');
+    if (del && confirm('Supprimer ce message ?')) {
+        state.messages = state.messages.filter(x => x.id !== del.dataset.delmsg);
+        persistKV();
+        renderMessages();
+    }
+});
+
 (function(){const nt=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 function init(){const search=$('guideSearch'),count=$('guideCount');
 function filt(){if(!search)return;const q=nt(search.value);let v=0;
@@ -2069,7 +2396,7 @@ if(search){search.addEventListener('input',filt);filt();}
 $('guideExpandAll').addEventListener('click',()=>document.querySelectorAll('#pg-aide details.acc').forEach(d=>d.open=true));
 $('guideCollapseAll').addEventListener('click',()=>document.querySelectorAll('#pg-aide details.acc').forEach(d=>d.open=false));}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();
-/* ═══════════ INITIALISATION ═══════════ */
+
 (async function init(){
 $('mastDate').textContent='Ouagadougou, '+fmtLong(fdate(new Date()));$('badgeAnnee').textContent=YEAR;
 await DB.open();
@@ -2084,13 +2411,19 @@ state.hiddenQuit=new Set(Array.isArray(hidQ)?hidQ:[]);
 try{const bd=await DB.kvGet('baseDir');if(bd&&bd.kind==='directory'){baseDirHandle=bd;if(!state.settings.baseDirName)state.settings.baseDirName=bd.name;}}catch(e){}
 try{const eh=await DB.kvGet('exportDir');if(eh&&eh.kind==='directory'){exportDirHandle=eh;if(!state.settings.exportDirName)state.settings.exportDirName=eh.name;}}catch(e){}
 }catch(e){state.columns=DEFAULT_COLS.slice();state.hidden=new Set(HIDE);}
-if(!state.settings.users.length)state.settings.users.push({id:uid(),agentId:null,nom:'ADMIN',prenom:'Infpe',nomPrenom:'ADMIN INFPE',user:'Admin',pass:'admin',type:'Administrateur'});
+if(!state.settings.users.length)state.settings.users.push({id:uid(),agentId:null,nom:'ADMIN',prenom:'Infpe',nomPrenom:'ADMIN INFPE',user:'Admin',pass:'ktibw',type:'Administrateur'});
 if(!state.settings.signataires.length)state.settings.signataires.push({id:uid(),agentId:null,nom:'SAWADOGO',prenom:'Brahiman',nomPrenom:'SAWADOGO Brahiman',distinction:'Chevalier de l\u2019Ordre des Palmes académiques',lib:SIG_TYPES[1].lib,pour:SIG_TYPES[1].pour,titre:SIG_TYPES[1].titre,actif:true});
 if(state.agents.length===0&&SMODE!=='mem'&&mirrorRestore()){toast('🧷 Restauré depuis le miroir.','info',6000);if(SMODE==='idb')DB.importAgents(state.agents).catch(()=>{});}
 mirrorSave();loadLogoSize();applyTip();renderPosteList();
 $('mastDate').textContent=(state.settings.ville||'Ouagadougou')+', '+fmtLong(fdate(new Date()));
 detect();refreshAll();renderParams();
 if(SMODE==='mem')storageBanner();
+
+initSupabase();
+cloudPull(true);
+if(cloudPullTimer)clearInterval(cloudPullTimer);
+cloudPullTimer=setInterval(()=>cloudPull(true),60000);
+
 const uidS=sessionStorage.getItem('infpe_uid');const sess=uidS?state.settings.users.find(u=>u.id===uidS):null;
 if(sess)enterApp(sess);else $('login').style.display='flex';})();
 </script>
